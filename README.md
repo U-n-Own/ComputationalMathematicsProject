@@ -14,7 +14,8 @@ The Minimum Cost Flow Problem (MCFP) is a well-known optimization problem that c
 ## Roadmap
 
    1. Generate some problem instances in the follwoing form:
-   $$\begin{bmatrix}
+$$
+\begin{bmatrix}
     Q & E^T \\
     E & 0
    \end{bmatrix} \begin{bmatrix}
@@ -23,8 +24,9 @@ The Minimum Cost Flow Problem (MCFP) is a well-known optimization problem that c
    \end{bmatrix} = \begin{bmatrix}
     b \\
     c
-    \end{bmatrix}$$
-   where $Q$ is a diagonal matrix and $E$ is the adjacency matrix of the graph.
+    \end{bmatrix}
+$$
+   where $Q$ is a diagonal matrix and $E$ is the $n \times m$ node-arc incidence matrix of the graph with $n$ nodes and $m$ arcs. The vector $x$ is the flow and $c$ is the cost of the flow. 
 
    With:
 
