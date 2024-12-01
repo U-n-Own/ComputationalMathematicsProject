@@ -10,11 +10,13 @@ def parse_to_matrix_format(filename):
     We need to output the graph having it in an node-arc incident matrix format + the flow of each node
 
     For a node with id, flow 
-    - We save a diagonal nxn matrix with the flow of each node in the diagonal
+
+    We save a diagonal nxn matrix with the flow of each node in the diagonal
 
     For an edge with src, dst, low, cap, cost we save a nxm node-arc incident matrix with the following rules:
     - If the edge is outgoing from v->w then we get negative cost 
     - If the edge is incoming from v<-w then we get positive cost
+
     """
     problem = {}
 
@@ -44,8 +46,9 @@ def parse_to_matrix_format(filename):
                 edges.append((src, dst, cost))
                 full_edges.append((src, dst, low, cap, cost))
             if (command == "c"):
-                # TODO: If needed we can store also info about the problem type (number of nodes, arcs, etc)
-                break
+                # comment
+                # Could be used to store the problem setting
+                pass
     
     # Create a diagonal nxn matrix with the flow of each node in the diagonal
     diagonal_matrix = np.diag(flows)
@@ -53,12 +56,14 @@ def parse_to_matrix_format(filename):
     # Initialize an empty matrix
     node_arc_matrix = np.zeros((problem["n_nodes"], len(edges)))
     
+    # Populate the node-arc incident matrix
     for idx, (src, dst, cost) in enumerate(edges):
         node_arc_matrix[src-1][idx] = -cost  # outgoing edge
         node_arc_matrix[dst-1][idx] = cost   # incoming edge
          
-    # DO NOT SAVE AS OBJECTS node_arc_matrix_sparse = sp.coo_matrix(node_arc_matrix) cannot work with it in julia 
+    # DO NOT SAVE AS OBJECTS node_arc_matrix_sparse 
     
+    # Save the two matrixes in a single file, the file will be opened in julia
     np.savez_compressed(f'{filename}_out.npz', diagonal_matrix=diagonal_matrix, 
                         node_arc_matrix=node_arc_matrix,
                         full_edges=full_edges)
@@ -67,7 +72,7 @@ def parse_to_matrix_format(filename):
 
 if __name__ == "__main__":
     filename = sys.argv[1]
-    # TODO: Make it run for multiple files
+    #TODO: Parse a list of file names
     parse_to_matrix_format(filename)
 
     
