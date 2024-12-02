@@ -58,8 +58,8 @@ def parse_to_matrix_format(filename):
     
     # Populate the node-arc incident matrix
     for idx, (src, dst, cost) in enumerate(edges):
-        node_arc_matrix[src-1][idx] = -cost  # outgoing edge
-        node_arc_matrix[dst-1][idx] = cost   # incoming edge
+        node_arc_matrix[src-1][idx] = -1  # outgoing edge
+        node_arc_matrix[dst-1][idx] = 1   # incoming edge
          
     # DO NOT SAVE AS OBJECTS node_arc_matrix_sparse 
     

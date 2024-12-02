@@ -8,7 +8,7 @@ using Plots
 using LightGraphs
 
 # We will use GMRES and could use SparseArrays and construct the KKT system
-# The prblem has a matrix is in this form:
+# The prblem has a matrix is in this form: Augmented System
 
 # [ D  E' ] [ x ] = [ b ]
 # [ E  0  ] [ y ] = [ c ]
@@ -35,7 +35,7 @@ function load_mcfp_data(filename::String)
 end
 
 # Visualize the D matrix and E matrix with eye
-D, E, edge_data = load_mcfp_data("dataset/net10_8_5.dmx_out.npz")
+D, E, edge_data = load_mcfp_data("dataset/net10_8_1.dmx_out.npz")
 
 
 # Sanity checks...
@@ -52,3 +52,11 @@ heatmap(Esparse, aspect_ratio=1, color=:grays, c=:blues, yflip=true, title="E ma
 # check space occupied of E and Esparse in megabytes
 println("Space occupied by E: ", sizeof(E) / 1024^2, " MB")
 println("Space occupied by Esparse: ", sizeof(Esparse) / 1024^2, " MB")
+
+
+# Construct the augmented system:
+Eᵀ = transpose(E)
+
+Z = zeros(size(E, 1), size(E, 1)) 
+
+
