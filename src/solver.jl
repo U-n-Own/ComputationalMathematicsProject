@@ -27,19 +27,28 @@ function load_mcfp_data(filename::String)
 
     data = NPZ.npzread(filename)
 
-    D = data["diagonal_matrix"]
+    flows = data["flows"]
     E = data["node_arc_matrix"]
     edge_data = data["full_edges"]
 
-    return D, E, edge_data
+    return flows, E, edge_data
 end
 
-# Visualize the D matrix and E matrix with eye
-D, E, edge_data = load_mcfp_data("dataset/net10_8_1.dmx_out.npz")
+# --------------- Load a problem from netgen (nb. netgen generate random easy graphs without structure)
+flows, E, edge_data = load_mcfp_data("dataset/net10_8_1.dmx_out.npz")
 
 
-# Sanity checks...
+# --------------- Construct the augmented system:
+Eᵀ = transpose(E)
 
+Z = zeros(size(E, 1), size(E, 1)) 
+
+
+
+# --------------- Sanity checks...
+println("Sanity Checks:")
+
+println(flows)
 # check sparsity of E
 println("Sparsity of E: ", count(!iszero, E) / length(E))
 
@@ -53,10 +62,7 @@ heatmap(Esparse, aspect_ratio=1, color=:grays, c=:blues, yflip=true, title="E ma
 println("Space occupied by E: ", sizeof(E) / 1024^2, " MB")
 println("Space occupied by Esparse: ", sizeof(Esparse) / 1024^2, " MB")
 
-
-# Construct the augmented system:
-Eᵀ = transpose(E)
-
-Z = zeros(size(E, 1), size(E, 1)) 
-
+# TODO: Check why is E transposed? The sum should be 0 across the rows not the columns
+println(size(E)) 
+println("Summing over first column of E:", sum(E[:, 1]))
 

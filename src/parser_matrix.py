@@ -33,8 +33,8 @@ def parse_to_matrix_format(filename):
                 problem["n_nodes"] = int(splat[2])
                 problem["m_arcs"] = int(splat[3])
             if (command == "n"):
-                # add in position id,id of nxn matrix the flow of the node
-                flows.append(int(splat[2]))
+                # We have for a node: id, flow
+                flows.append((int(splat[1]), int(splat[2])))
             if (command == "a"):
                 # add in position src,dst of nxm matrix the cost of the edge
                 src = int(splat[1])
@@ -51,7 +51,7 @@ def parse_to_matrix_format(filename):
                 pass
     
     # Create a diagonal nxn matrix with the flow of each node in the diagonal
-    diagonal_matrix = np.diag(flows)
+    #diagonal_matrix = np.diag(flows)
     
     # Initialize an empty matrix
     node_arc_matrix = np.zeros((problem["n_nodes"], len(edges)))
@@ -64,7 +64,7 @@ def parse_to_matrix_format(filename):
     # DO NOT SAVE AS OBJECTS node_arc_matrix_sparse 
     
     # Save the two matrixes in a single file, the file will be opened in julia
-    np.savez_compressed(f'{filename}_out.npz', diagonal_matrix=diagonal_matrix, 
+    np.savez_compressed(f'{filename}_out.npz', flows=flows,
                         node_arc_matrix=node_arc_matrix,
                         full_edges=full_edges)
     
