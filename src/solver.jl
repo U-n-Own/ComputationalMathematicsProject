@@ -13,17 +13,73 @@ using LightGraphs
 # [ D  E' ] [ x ] = [ b ]
 # [ E  0  ] [ y ] = [ c ]
 
+function householder_v(v::Vector)
+    """
+    We return directly e1 since it's the first element of the basis multiplied by norm(v)
+    """
+    e1 = zeros(size(v))
+    e1[1] = norm(v)
+    
+    return e1
+    
+end
+
+function householder_m(v::Vector)
+
+    return 1.0I(size(v)[1])-2*(v*v')/(norm(v)^2)
+    
+end
+
+function QR_householder(A::Matrix)
+    """
+    Compute the QR factorization of a matrix A using Householder reflectors:
+    - This method is numerically stable 
+    
+    TODO:This version has no matrix in SparseArray form maybe we should write.
+
+    Returns:
+    Q: Orthogonal matrix
+    R: Upper triangular matrix
+    """ 
+
+    m, n = size(A)
+    Q = 1.0*I(m)
+    R = copy(A)
+    
+    for k in 1:n
+    # Construct H
+    u = householder_v(R[k:end, k])
+    H = 1.0*I(size(u)[1]) - (2*u*u')
+    #H = householder_m(R[k:end, k])
+
+    println("H matrix")
+    display(H)
+
+    # Submatrix
+    R[k:end, k:end] = H * R[k:end, k:end]
+    # accumulate Q
+    Q[:, k:end] = Q[:, k:end]*H
+    
+    println("Q matrix")
+    display(Q)
+    # Get R iterate, accumulate Q:= Q1*Q2...*Qn
+    # Remeber Q:=Q1..Qn*R=A
+    # Also Q can be constructed [Q0 | Qc][R0 ; 0] yielding ThinQR
+    end
+
+    return Q,R
+end
 
 # Load from npz file the in order D diagonal matrix, E node arc incidence matrix and full edge informations
 function load_mcfp_data(filename::String)
-"""
+    """
     Load the MCFP data from the npz file
     
     Returns:
     D: Diagonal matrix
     E: Node arc incidence matrix
     edge_data: Full edge informations with a tuple of (source, target, capacity, cost)
-"""
+    """
 
     data = NPZ.npzread(filename)
 
@@ -39,30 +95,20 @@ flows, E, edge_data = load_mcfp_data("dataset/net10_8_1.dmx_out.npz")
 
 
 # --------------- Construct the augmented system:
+Deye = Diagonal(ones(Int, size(E, 2)))
+
+E = Int.(E)
+
 Eᵀ = transpose(E)
 
-Z = zeros(size(E, 1), size(E, 1)) 
+Z = Int.(zeros(size(E, 1), size(E, 1))) 
 
+A = [Deye Eᵀ ;
+     E Z]
 
+n = 5
 
-# --------------- Sanity checks...
-println("Sanity Checks:")
+P = rand(n,n)
 
-println(flows)
-# check sparsity of E
-println("Sparsity of E: ", count(!iszero, E) / length(E))
-
-# get E sparse
-Esparse = sparse(E)
-
-# visualize Esparse
-heatmap(Esparse, aspect_ratio=1, color=:grays, c=:blues, yflip=true, title="E matrix")
-
-# check space occupied of E and Esparse in megabytes
-println("Space occupied by E: ", sizeof(E) / 1024^2, " MB")
-println("Space occupied by Esparse: ", sizeof(Esparse) / 1024^2, " MB")
-
-# TODO: Check why is E transposed? The sum should be 0 across the rows not the columns
-println(size(E)) 
-println("Summing over first column of E:", sum(E[:, 1]))
+Q,R = QR_householder(P)
 
