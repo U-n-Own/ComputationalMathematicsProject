@@ -7,6 +7,8 @@ using NPZ
 using Plots
 using LightGraphs
 
+include("GMRES.jl")
+
 # We will use GMRES and could use SparseArrays and construct the KKT system
 # The prblem has a matrix is in this form: Augmented System
 
@@ -47,5 +49,21 @@ Eᵀ = transpose(E)
 
 Z = Int.(zeros(size(E, 1), size(E, 1))) 
 
-#A = [Deye Eᵀ ;
-#     E Z]
+A = [Deye Eᵀ ;
+     E Z]
+#convert A in SparseArrays
+println(size(A))
+#cond(A)
+
+println(det(E*Eᵀ))
+
+A = SparseMatrixCSC(A)
+
+
+y = rand(size(A, 2))
+
+n = 20
+
+x = GMRES(A, y, n)
+
+println(norm(A*x - y))

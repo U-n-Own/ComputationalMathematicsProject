@@ -1,9 +1,10 @@
 using LinearAlgebra
 using Random
+using SparseArrays
 
 Random.seed!(42)
 
-function householder_v(x :: Vector)
+function householder_v(x :: SparseVector)
     s = norm(x)
     if x[1] >= 0
         s = -s
@@ -16,9 +17,9 @@ function householder_v(x :: Vector)
 end
 
 
-function QR_fact(A :: Matrix)
+function QR_fact(A :: SparseMatrixCSC)
     m, n = size(A)
-    Q = Matrix(1.0 * I(m))
+    Q = SparseMatrixCSC(1.0 * I(m))
     R = copy(A)
 
     for i = 1:n
@@ -35,7 +36,7 @@ function QR_fact(A :: Matrix)
     return (Q, R)
 end
 
-function LeastSquares_QR(A :: Matrix, b :: Vector)
+function LeastSquares_QR(A :: SparseMatrixCSC, b :: SparseVector)
     """
     Solve Least Squares problems with QR factorization by back substitution
     """
@@ -60,28 +61,3 @@ function LeastSquares_QR(A :: Matrix, b :: Vector)
 
     return x
 end
-
-M = rand(Float64, (4, 4))
-println("M")
-display(M)
-Q, R = QR_fact(M)
-println("final Q")
-display(Q)
-println("inverse of Q")
-display(inv(Q))
-println("final R")
-display(R)
-println("final Q * R")
-display(Q*R)
-println("initial M")
-display(M)
-
-b = rand(Float64, 4)
-println("b")
-display(b)
-x = LeastSquares_QR(M, b)
-
-# check error
-println("error")
-error = norm(M*x - b)
-

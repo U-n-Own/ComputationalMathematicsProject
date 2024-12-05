@@ -1,9 +1,10 @@
 using LinearAlgebra
 using Random
+using SparseArrays
 
 Random.seed!(42)
 
-function Arnoldi(A::Matrix, y::Vector, n::Int)
+function Arnoldi(A::SparseMatrixCSC, y::Vector, n::Int)
     """
     Generate basis q1,...,q{n+1} in K_{n+1}(A, y)
     - A is a matrix
@@ -43,19 +44,3 @@ function Arnoldi(A::Matrix, y::Vector, n::Int)
     return (Q, H)
 
 end
-
-
-S = rand(5, 5)
-
-y = rand(5)
-
-Q, H = Arnoldi(S, y, 3)
-
-println("Q")
-display(Q)
-
-display(Q'*Q)
-
-# n+1 x n where n is the number of vectors of the basis?
-println("Hessemberg matrix: n+1 x n")
-display(H)
