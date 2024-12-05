@@ -1,4 +1,7 @@
 using LinearAlgebra
+using Random
+
+Random.seed!(42)
 
 function householder_v(x :: Vector)
     s = norm(x)
@@ -32,6 +35,32 @@ function QR_fact(A :: Matrix)
     return (Q, R)
 end
 
+function LeastSquares_QR(A :: Matrix, b :: Vector)
+    """
+    Solve Least Squares problems with QR factorization by back substitution
+    """
+    Q0, R0 = QR_fact(A)
+    Qb = Q0' * b
+    
+    # solve Rx = Qb with bakcward substitution
+    n = size(R0)[2]
+    
+    x = zeros(n)
+    
+    # We go backward since we have a triangual matrix the last is just a scalar assignment and then 
+    # we back subtitute the result in the row above...
+    
+    for i = n:-1:1
+        #general formula is : x_i = (y_i - sum_{j=i+1}^{n} u_{ij}x_j)/u_{ii} taken from https://algowiki-project.org/en/Backward_substitution
+        x[i] = (Qb[i] - dot(R0[i, i+1:end], x[i+1:end])) / R0[i, i]
+    end
+
+    println("x")
+    display(x)
+
+    return x
+end
+
 M = rand(Float64, (4, 4))
 println("M")
 display(M)
@@ -47,5 +76,12 @@ display(Q*R)
 println("initial M")
 display(M)
 
+b = rand(Float64, 4)
+println("b")
+display(b)
+x = LeastSquares_QR(M, b)
 
+# check error
+println("error")
+error = norm(M*x - b)
 
