@@ -1,6 +1,8 @@
 using LinearAlgebra 
 using Random
 using SparseArrays
+using Printf
+
 include("Arnoldi.jl")
 include("QR.jl")
 
@@ -76,14 +78,23 @@ b = rand(5)
 # random symmetric matrix
 Asym = A*A'
 
-# run Arnoldi
-Q, H = Arnoldi(Asym, b, 5)
+for i in 1:5
+  # run Arnoldi
+  Q, H = Arnoldi(Asym, b, i)
 
-# H_n = Qt*Rt 
-Qt, Rt = QR_fact(SparseMatrixCSC(H))
+  @printf "H %d\n" i
+  display(H)
 
-display(Qt)
-display(Rt)
+  # H_n = Qt*Rt 
+#   Q, R = QR_fact(SparseMatrixCSC(H))
+
+#   @printf "Q %d\n" i
+#   display(Q)
+#   @printf "R %d\n" i
+#   display(R)
+end
+
+
 
 
 

@@ -4,6 +4,7 @@ using SparseArrays
 
 Random.seed!(42)
 
+# WRONG! checked result with builtin Arnoldi. - no problem though, we only need Lanczos
 function Arnoldi(A::SparseMatrixCSC, y::Vector, n::Int)
     """
     Generate basis q1,...,q{n+1} in K_{n+1}(A, y)
