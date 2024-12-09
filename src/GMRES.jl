@@ -5,6 +5,7 @@ using Printf
 
 include("Arnoldi.jl")
 include("QR.jl")
+include("lanczos_qr.jl")
 
 
 Random.seed!(42)
@@ -29,7 +30,7 @@ function GMRES(A::SparseMatrixCSC, y::Vector, n::Int)
 end
 
 
-function GMRES_IncrementalQR(A::SparseMatrixCSC, y::Vector, n::Int)
+function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::Int)
     
     """
     This version of GMRES we transform the problem in this way:
@@ -43,18 +44,17 @@ function GMRES_IncrementalQR(A::SparseMatrixCSC, y::Vector, n::Int)
     - Use Given rotation to modify the extended H_n+1 to stay upper Hessenberg
     - Update R and Q
 
-    1. Arnoldi 1 step
-    2. QR fact of H from Arnoldi
-    3.
+    1. QR fact from Lanczos QR
+    2. Solve via backsubstitution
     """
 
     m = size(A, 1)
-    Q = zeros(m, n + 1) # Orthonormal basis
-    H = zeros(n + 1, n) # Hessenberg matrix
-    R = zeros(n + 1, n) # Upper triangular matrix for QR factorization
 
-    
+    L, α, β, Q, R = LanczosQR(A, y, iterations)
+    e1 = (1.0*I(iterations+1))[:, 1]
+    x = LeastSquares_QR(Q, R, SparseVector(e1*norm(y)))
 
+    return x
 
 end
 
@@ -73,28 +73,13 @@ n = 200
 println(norm(A*x - y))
   =#
 
-A = sprand(5, 5, 0.3)
-b = rand(5)
+A = sprand(100, 100, 0.9)
+b = rand(100)
 # random symmetric matrix
 Asym = A*A'
 
-for i in 1:5
-  # run Arnoldi
-  Q, H = Arnoldi(Asym, b, i)
+x = GMRES_IncrementalQR(Asym, SparseVector(b), 80)
 
-  @printf "H %d\n" i
-  display(H)
+display(x)
 
-  # H_n = Qt*Rt 
-#   Q, R = QR_fact(SparseMatrixCSC(H))
-
-#   @printf "Q %d\n" i
-#   display(Q)
-#   @printf "R %d\n" i
-#   display(R)
-end
-
-
-
-
-
+println("Error is :", norm(A*x - b))

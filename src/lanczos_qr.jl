@@ -8,16 +8,18 @@ include("QR.jl")
 Random.seed!(42)
 
 
-function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
-    
+function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
+    """
+
+    """ 
     alpha = zeros(1,n)     # diagonal of H
     beta = zeros(1,n)    # subdiagonal of H (= superdiagonal of H because symmetric)
     
     L = zeros(size(A)[1], n)    # Lanczos Basis
     w = zeros(size(A)[1], 1)
     
-    Q = zeros(n+1, n+1)
-    R = zeros(n+1, n)
+    Q = SparseMatrixCSC(zeros(n+1, n+1))
+    R = SparseMatrixCSC(zeros(n+1, n))
     
     for j in 1:n
     
@@ -41,11 +43,11 @@ function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
             beta[j] = norm(w)
         end
             
-#         if beta[j] < 1e-13
-#             println("Breakdown");
-#             return 
-#         end
-        
+        if beta[j] < 1e-13
+            println("Breakdown");
+            return (L, alpha, beta, Q, R)
+        end
+       
         # QR factorization
         if j == 1
             H1 = reshape([alpha[1] ; beta[1]], 2,1)
@@ -63,13 +65,11 @@ function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
             Hrefl = Matrix(1.0 * I(2)) - (v * v' * 2 / (v' * v))
             R[1:j, j] = [c[1:j-1] ; norm(x)]
             
-            # make this less space-shit -- can't be bothered rn
-            # should be able to compute these explicitly
             
-            O = vcat(
+            #= O = vcat(
                 hcat(1.0 * I(j-1) , zeros(j-1, 2)),
                 hcat(zeros(2, j-1) , Hrefl))
-           
+            =#
             
 
             Q[j+1, j+1] = 1.0
@@ -82,7 +82,6 @@ function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
                 Q[j+1, i] = Q[j, i]*Hrefl[1,2] + Q[j+1, i]*Hrefl[2,2]     
             end
             
-            print("error on approx Q is : ", norm((O * (Q[1:j+1, 1:j+1]))) - norm(Q[1:j+1, 1:j+1]))
 
             println("==========")
             println("Q*R")
@@ -98,7 +97,7 @@ function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
     return (L, alpha, beta, Q, R)
 
 end
-
+#= 
 A = sprand(7,7, .1)
 A = A * A'
 y = rand(7)
@@ -108,7 +107,7 @@ L, alpha, beta, Q, R = LanczosQR(A, y, n)
 display(L)
 display(alpha)
 display(beta)
-
+ =#
 
 # println("builtin arnoldi")
 # Ks = arnoldi(A, y)

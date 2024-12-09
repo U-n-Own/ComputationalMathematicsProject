@@ -1,8 +1,8 @@
 # Fdb version 3
-["pdflatex"] 1733763496 "/home/vincent/ComputationalMathematicsProject/notes/notes.tex" "notes.pdf" "notes" 1733763496
+["pdflatex"] 1733763709 "/home/vincent/ComputationalMathematicsProject/notes/notes.tex" "notes.pdf" "notes" 1733763710
   "/etc/texmf/web2c/texmf.cnf" 1731425416 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/vincent/.texlive2021/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk" 1733738785 11524 42034280b45c92c17db6f892ed5f38f2 ""
-  "/home/vincent/ComputationalMathematicsProject/notes/notes.tex" 1733763332 8556 8cf5bf4feaea38ddcdc280d80e693d43 ""
+  "/home/vincent/ComputationalMathematicsProject/notes/notes.tex" 1733763709 8558 5f5fcd850773c0806aec166fffbf2153 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
@@ -65,8 +65,8 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1644012257 39432 7155514e09a3d69036fac785183a21c2 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1732123652 4073795 a82a847ac97773bf4a607ab050efa3a1 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1732123659 1435955 97fc9d98a2eb99355d2280c09e797d08 ""
-  "notes.aux" 1733763496 968 7064819ae5c6dacdd7011da12c046809 "pdflatex"
-  "notes.tex" 1733763332 8556 8cf5bf4feaea38ddcdc280d80e693d43 ""
+  "notes.aux" 1733763709 968 7064819ae5c6dacdd7011da12c046809 "pdflatex"
+  "notes.tex" 1733763709 8558 5f5fcd850773c0806aec166fffbf2153 ""
   (generated)
   "notes.aux"
   "notes.log"
