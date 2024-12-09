@@ -59,6 +59,7 @@ function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
             x = [c[j]; beta[j]]
             y = [norm(x), 0]
             v = x - y
+            # Hrefl is symmetric [((a - norm(x))^2 , (a - norm(x)beta_n); (a - norm(x)beta_n) , beta_n^2 )]
             Hrefl = Matrix(1.0 * I(2)) - (v * v' * 2 / (v' * v))
             R[1:j, j] = [c[1:j-1] ; norm(x)]
             
@@ -68,9 +69,21 @@ function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
             O = vcat(
                 hcat(1.0 * I(j-1) , zeros(j-1, 2)),
                 hcat(zeros(2, j-1) , Hrefl))
+           
             
+
             Q[j+1, j+1] = 1.0
-            Q[1:j+1, 1:j+1] = (O * (Q[1:j+1, 1:j+1])')'
+           
+            #Q[1:j+1, 1:j+1] = (O * (Q[1:j+1, 1:j+1])')'
+            
+            for i in 1:j+1
+                # One for the second last column and one for the last column of Q'old * O  
+                Q[j, i] = Q[j, i]*Hrefl[1,1] + Q[j+1, i]*Hrefl[2,1] 
+                Q[j+1, i] = Q[j, i]*Hrefl[1,2] + Q[j+1, i]*Hrefl[2,2]     
+            end
+            
+            print("error on approx Q is : ", norm((O * (Q[1:j+1, 1:j+1]))) - norm(Q[1:j+1, 1:j+1]))
+
             println("==========")
             println("Q*R")
             display(Q*R)
