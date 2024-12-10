@@ -3,12 +3,12 @@ using Random
 using SparseArrays
 using Printf
 
-include("Arnoldi.jl")
+# include("Arnoldi.jl")
 include("QR.jl")
 include("lanczos_qr.jl")
 
 
-Random.seed!(42)
+# Random.seed!(42)
 
 
 function GMRES(A::SparseMatrixCSC, y::Vector, n::Int)
@@ -51,7 +51,14 @@ function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::In
     m = size(A, 1)
 
     L, α, β, Q, R = LanczosQR(A, y, iterations)
-    e1 = (1.0*I(iterations+1))[:, 1]
+    
+    println("Q")
+    display(Q)
+    println("R")
+    display(R)
+    
+    
+    e1 = (1.0*I(iterations))[:, 1]
     z = LeastSquares_QR(Q, R, SparseVector(e1*norm(y)))
     
     x = L[:, 1:iterations] * z
@@ -82,9 +89,15 @@ D = SparseMatrixCSC(1.0 * I(diag_size))
 E = sprand(mat_size - diag_size, diag_size, .7)
 
 Asym = hcat(vcat(D, E), vcat(E', SparseMatrixCSC(zeros(mat_size - diag_size, mat_size - diag_size))))
-println(rank(Asym))
-display(Asym)
 
+while rank(Asym) != mat_size
+  global E = sprand(mat_size - diag_size, diag_size, .7)
+  global Asym = hcat(vcat(D, E), vcat(E', SparseMatrixCSC(zeros(mat_size - diag_size, mat_size - diag_size))))
+  println(rank(Asym))
+end
+
+println("A")
+display(Asym)
 
 b = rand(mat_size)
 

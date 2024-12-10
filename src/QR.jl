@@ -2,7 +2,7 @@ using LinearAlgebra
 using Random
 using SparseArrays
 
-Random.seed!(42)
+# Random.seed!(42)
 
 function householder_v(x :: Vector)
     s = norm(x)
@@ -45,20 +45,35 @@ function LeastSquares_QR(Q :: SparseMatrixCSC, R :: SparseMatrixCSC, b :: Sparse
     Solve Least Squares problems given QR factorization by back substitution
     """
 
-    Qb = Q' * b
-    
     n = size(R)[2]
+
+    R = R[1:n, 1:n]
+    Q = Q[1:n, 1:n]
     
+    println("R_0")
+    display(R)
+    
+    println("Q_0R_0")
+    display(Q*R)
+    
+    println("det(R_0): ", det(R))
+    
+    Qb = Q' * b
     x = zeros(n)
     
     # We go backward since we have a triangual matrix the last is just a scalar assignment and then 
     # we back subtitute the result in the row above...
     
+    println("x with builtin solver: ", Matrix(R) \ Vector(Qb))
+    
+    # Sanity-checked with builtin solver
     for i = n:-1:1
         #general formula is : x_i = (y_i - sum_{j=i+1}^{n} u_{ij}x_j)/u_{ii} taken from https://algowiki-project.org/en/Backward_substitution
         x[i] = (Qb[i] - dot(R[i, i+1:end], x[i+1:end])) / R[i, i]
     end
-
+    
+    println("x with backsubst: ", x)
+    
     return x
 end
 

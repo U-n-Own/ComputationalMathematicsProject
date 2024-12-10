@@ -5,13 +5,21 @@ using ExponentialUtilities  # to compare with builtin arnoldi
 
 include("QR.jl")
 
-Random.seed!(42)
+# Random.seed!(42)
 
 
 function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
     """
-
+    Builds QR factorization of H while performing Lanczos
     """ 
+    
+    println("builtin arnoldi - sanity check")
+    Ks = arnoldi(A, y)
+    display(Ks.H[1:(size(Ks.H)[1] - 1), :])
+    println("rank(H)")
+    display(rank(Ks.H[1:(size(Ks.H)[1] - 1), :]))
+    
+    
     alpha = zeros(1,n)     # diagonal of H
     beta = zeros(1,n)    # subdiagonal of H (= superdiagonal of H because symmetric)
     
