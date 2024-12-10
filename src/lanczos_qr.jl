@@ -43,18 +43,13 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
             beta[j] = norm(w)
         end
             
-        if beta[j] < 1e-13
-            println("Breakdown");
-            return (L, alpha, beta, Q, R)
-        end
-       
         # QR factorization
         if j == 1
             H1 = reshape([alpha[1] ; beta[1]], 2,1)
             Q[1:2, 1:2], R[1:2, 1] = QR_fact(H1)
-            println("QR")
-            display(Q)
-            display(R)
+#             println("QR")
+#             display(Q)
+#             display(R)
         else
             # last column of R:
             c = beta[j-1] * Q[j-1, 1:j]' + alpha[j] * Q[j, 1:j]'
@@ -66,30 +61,43 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
             R[1:j, j] = [c[1:j-1] ; norm(x)]
             
             
-            #= O = vcat(
-                hcat(1.0 * I(j-1) , zeros(j-1, 2)),
-                hcat(zeros(2, j-1) , Hrefl))
-            =#
+#              O = vcat(
+#                 hcat(1.0 * I(j-1) , zeros(j-1, 2)),
+#                 hcat(zeros(2, j-1) , Hrefl))
+            
             
 
             Q[j+1, j+1] = 1.0
            
-            #Q[1:j+1, 1:j+1] = (O * (Q[1:j+1, 1:j+1])')'
+#             Q[1:j+1, 1:j+1] = (O * (Q[1:j+1, 1:j+1])')'
+#             Q[1:j+1, 1:j+1] = Q[1:j+1, 1:j+1] * O
+            
+            newcols = zeros(j+1, 2)
             
             for i in 1:j+1
-                # One for the second last column and one for the last column of Q'old * O  
-                Q[j, i] = Q[j, i]*Hrefl[1,1] + Q[j+1, i]*Hrefl[2,1] 
-                Q[j+1, i] = Q[j, i]*Hrefl[1,2] + Q[j+1, i]*Hrefl[2,2]     
+                # Compute Q_old * O without constructing O
+                # Can compute Q_old * O instead of Q_old * O' because O is sym.
+                
+                newcols[i, 1]     = Q[i, j] * Hrefl[1,1] + Q[i, j+1] * Hrefl[2,1]
+                newcols[i, 2]   = Q[i, j] * Hrefl[1,2] + Q[i, j+1] * Hrefl[2,2]
             end
             
-
+            Q[1:j+1, j:j+1] = newcols
+            
+            
+            if beta[j] < 1e-13
+                println("Breakdown");
+                return (L, alpha, beta, Q, R)
+            end
+            
+            #=
             println("==========")
             println("Q*R")
             display(Q*R)
             println("alpha, beta")
             display(alpha)
             display(beta)
-            
+            =#
         end
         
         
@@ -97,19 +105,30 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
     return (L, alpha, beta, Q, R)
 
 end
-#= 
-A = sprand(7,7, .1)
-A = A * A'
-y = rand(7)
-n = 5
-println("Lanczos n = 5")
-L, alpha, beta, Q, R = LanczosQR(A, y, n)
-display(L)
-display(alpha)
-display(beta)
- =#
 
+# D = Matrix(1.0 * I(3))
+# E = rand(2,3)
+# A = hcat(vcat(D, E), vcat(E', zeros(2,2)))
+#          
+# display(A)
+# A = SparseMatrixCSC(A)
+# 
+# # A = sprand(7,7, .1)
+# # A = A * A'
+# 
+# # println(Matrix(A))
+# y = SparseVector(rand(5))
+# println(Vector(y))
+# n = 5
+# println("Lanczos n = 5")
+# L, alpha, beta, Q, R = LanczosQR(A, y, n)
+# println("Q")
+# display(Q)
+# println("R")
+# display(R)
+# display(Q * R)
+# 
 # println("builtin arnoldi")
 # Ks = arnoldi(A, y)
 # display(Ks)
- 
+#  

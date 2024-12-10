@@ -52,8 +52,10 @@ function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::In
 
     L, α, β, Q, R = LanczosQR(A, y, iterations)
     e1 = (1.0*I(iterations+1))[:, 1]
-    x = LeastSquares_QR(Q, R, SparseVector(e1*norm(y)))
-
+    z = LeastSquares_QR(Q, R, SparseVector(e1*norm(y)))
+    
+    x = L[:, 1:iterations] * z
+    
     return x
 
 end
@@ -73,13 +75,35 @@ n = 200
 println(norm(A*x - y))
   =#
 
+
+mat_size = 5
+diag_size = 2
+D = SparseMatrixCSC(1.0 * I(diag_size))
+E = sprand(mat_size - diag_size, diag_size, .7)
+
+Asym = hcat(vcat(D, E), vcat(E', SparseMatrixCSC(zeros(mat_size - diag_size, mat_size - diag_size))))
+println(rank(Asym))
+display(Asym)
+
+
+b = rand(mat_size)
+
+x = GMRES_IncrementalQR(Asym, SparseVector(b), mat_size)
+
+# display(x)
+
+println("Error is :", norm(Asym*x - b))
+
+
+#=
 A = sprand(100, 100, 0.9)
 b = rand(100)
 # random symmetric matrix
 Asym = A*A'
 
-x = GMRES_IncrementalQR(Asym, SparseVector(b), 80)
+x = GMRES_IncrementalQR(Asym, SparseVector(b), s)
 
 display(x)
 
-println("Error is :", norm(A*x - b))
+println("Error is :", norm(Asym*x - b))
+=#
