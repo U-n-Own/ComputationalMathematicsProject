@@ -3,6 +3,12 @@ using Random
 using SparseArrays
 using Printf
 
+# import gmres
+using IterativeSolvers
+# import arnoldi
+using ExponentialUtilities
+
+
 # include("Arnoldi.jl")
 include("QR.jl")
 include("lanczos_qr.jl")
@@ -48,8 +54,30 @@ function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::In
     2. Solve via backsubstitution
     """
 
+    # ------------------- Builin QR -------------------
+    Ks = arnoldi(A, y)
+    H_arn = Ks.H[1:(size(Ks.H)[1] - 1), :]
+
+    # Solve min H_n - e1*norm(y) 
+    e1 = (1.0*I(iterations))[:, 1]
+    zbi = H_arn \ (e1*norm(y))
+    # get V is Q
+    Qbi = Ks.V[:, 1:iterations]
+
+    xbi = Qbi * zbi
+  #=   # Do the QR factorization using builtin
+    Qbi, Rbi = qr(H_arn)
+    #convert Q and R to SparseMatrixCSC
+    Qbi, Rbi = SparseMatrixCSC(Qbi), SparseMatrixCSC(Rbi)
+
+    Qb = Qbi'*y
+    xbi = zeros(size(A, 1))
+
+    xbi = Rbi \ Qb =#
+    # ------------------- Our QR -------------------
     m = size(A, 1)
 
+    #x_bi = gmres(A, y)
     L, α, β, Q, R = LanczosQR(A, y, iterations)
     
     println("Q")
@@ -57,13 +85,28 @@ function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::In
     println("R")
     display(R)
     
+    #check for those Qbi and Rbi are the same as in our QR
     
+#=     println("------------------")
+    println("Qbi")
+    display(Qbi)
+    println("Q")
+    display(Q)
+    println("------------------")
+    println("Rbi")
+    display(Rbi)
+    println("R")
+    display(R)
+    println("------------------") =#
+    
+
     e1 = (1.0*I(iterations))[:, 1]
+    
     z = LeastSquares_QR(Q, R, SparseVector(e1*norm(y)))
     
     x = L[:, 1:iterations] * z
     
-    return x
+    return x, xbi
 
 end
 
@@ -83,8 +126,8 @@ println(norm(A*x - y))
   =#
 
 
-mat_size = 5
-diag_size = 2
+mat_size = 6
+diag_size = 3
 D = SparseMatrixCSC(1.0 * I(diag_size))
 E = sprand(mat_size - diag_size, diag_size, .7)
 
@@ -101,13 +144,13 @@ display(Asym)
 
 b = rand(mat_size)
 
-x = GMRES_IncrementalQR(Asym, SparseVector(b), mat_size)
+@time x, x_bi = GMRES_IncrementalQR(Asym, SparseVector(b), mat_size)
 
 # display(x)
 
 println("Error is :", norm(Asym*x - b))
 
-
+println("Error with builtin is :", norm(Asym*x_bi - b))
 #=
 A = sprand(100, 100, 0.9)
 b = rand(100)
