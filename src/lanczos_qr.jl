@@ -11,14 +11,7 @@ include("QR.jl")
 function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
     """
     Builds QR factorization of H while performing Lanczos
-    """ 
-    
-    println("builtin arnoldi - sanity check")
-    Ks = arnoldi(A, y)
-    display(Ks.H[1:(size(Ks.H)[1] - 1), :])
-    println("rank(H)")
-    display(rank(Ks.H[1:(size(Ks.H)[1] - 1), :]))
-    
+    """     
     
     alpha = zeros(1,n)     # diagonal of H
     beta = zeros(1,n)    # subdiagonal of H (= superdiagonal of H because symmetric)
@@ -98,14 +91,6 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
                 return (L, alpha, beta, Q, R)
             end
             
-            #=
-            println("==========")
-            println("Q*R")
-            display(Q*R)
-            println("alpha, beta")
-            display(alpha)
-            display(beta)
-            =#
         end
         
         
@@ -114,29 +99,3 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
 
 end
 
-# D = Matrix(1.0 * I(3))
-# E = rand(2,3)
-# A = hcat(vcat(D, E), vcat(E', zeros(2,2)))
-#          
-# display(A)
-# A = SparseMatrixCSC(A)
-# 
-# # A = sprand(7,7, .1)
-# # A = A * A'
-# 
-# # println(Matrix(A))
-# y = SparseVector(rand(5))
-# println(Vector(y))
-# n = 5
-# println("Lanczos n = 5")
-# L, alpha, beta, Q, R = LanczosQR(A, y, n)
-# println("Q")
-# display(Q)
-# println("R")
-# display(R)
-# display(Q * R)
-# 
-# println("builtin arnoldi")
-# Ks = arnoldi(A, y)
-# display(Ks)
-#  
