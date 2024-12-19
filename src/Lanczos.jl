@@ -25,6 +25,9 @@ function Lanczos(A::SparseMatrixCSC, y::SparseVector, n::Int)
     # inductive case
     
     for j in 2:n
+        if j % 500 == 0
+            println(j, "-th Lanczos iteration")
+        end
         if beta[j-1] < 1e-13
             println("Breakdown");
             return

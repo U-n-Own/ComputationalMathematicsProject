@@ -158,9 +158,9 @@ A trivial way to implement GMRES would be:
 The requested optimization asks to compute the QR factorization during the Lanczos iteration.
 
 \subsubsection{Extending the QR decomposition}
-Assume we have $H_{n-1} = Q_{old}R_{old}$. $H_n$ will be computed using a Lanczos iteration, obtaining:
-\[H_n = \left[\begin{array}{ c | c }
-    H_{n-1} & \begin{matrix}
+Assume we have $\underbar H_{n-1} = Q_{old}R_{old}$. $\underbar H_n$ will be computed using a Lanczos iteration, obtaining:
+\[\underbar H_n = \left[\begin{array}{ c | c }
+    \underbar H_{n-1} & \begin{matrix}
            0\\
            \vdots\\
            0\\
@@ -176,7 +176,7 @@ We want to find two matrices $Q$, $R$ such that:
 \begin{itemize}
  \item $Q\in \rmatr{(n+1)}{(n+1)}$ is orthogonal
  \item $R \in \rmatr{(n+1)}{n}$ is upper triangular
- \item $H_n = QR$, i.e. $Q^T H_n = R$
+ \item $\underbar H_n = QR$, i.e. $Q^T \underbar H_n = R$
 \end{itemize}
 First off, to obtain a $Q$ matrix of the requested shape that is orthogonal, we could consider:
 \[Q_{old}' = \left[\begin{array}{ c | c }
@@ -190,8 +190,8 @@ First off, to obtain a $Q$ matrix of the requested shape that is orthogonal, we 
     0 \quad\hdots\quad 0 & 1
   \end{array}\right]
 \]
-This takes us close to the solution, but not quite there; in fact the product $Q'^T_{old} H_n$ is \emph{almost} triangular:
-\[Q'^T_{old} H_n = \left[\begin{array}{ c | c }
+This takes us close to the solution, but not quite there; in fact the product $Q'^T_{old} \underbar H_n$ is \emph{almost} triangular:
+\[Q'^T_{old} \underbar H_n = \left[\begin{array}{ c | c }
     R_{old} & 
            Q'^T_{old}\begin{bmatrix}
             0\\
@@ -228,7 +228,7 @@ Recall that $R_{old}$ is an $n \times (n-1)$ upper triangular matrix, hence it h
          0 \hdots 0\\0 \hdots 0
         \end{matrix} & H_{refl}
   \end{array}\right]\]
-  The matrix we obtain as $OQ_{old}'^TH_n$ is triangular.
+  The matrix we obtain as $OQ_{old}'^T\underbar H_n$ is triangular.
   
   \paragraph{Constructing the $R$ Matrix}
   \begin{itemize}
@@ -261,6 +261,13 @@ Recall that $R_{old}$ is an $n \times (n-1)$ upper triangular matrix, hence it h
   \end{itemize}
   
   Altenatively we can calculate the new Q as follows:
+  \[Q = O^T Q'_{old} = OQ_{old}\]
+  By the symmetry of $O$, which is guaranteed by the symmetry of $H_{refl}$.
+  
+  \newpage
+  \subsection{Solving the minimum problem, given QR}
+  Given the QR factorization of $\underbar H$, we can compute  the solution to the following minimum problem:
+  \[\min_{z \in \reals} \|\hess_n z - e_1\|y\|\|\]
   
  \end{document}
  

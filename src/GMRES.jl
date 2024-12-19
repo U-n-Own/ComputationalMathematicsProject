@@ -19,9 +19,10 @@ include("lanczos_qr.jl")
 
 function GMRES_reference(A::SparseMatrixCSC, y::SparseVector, n::Int)
     L, alpha, beta = Lanczos(A, y, n)
-    
 
-    H = SymTridiagonal(alpha[1, :], beta[1, :])
+    H = Matrix(SymTridiagonal(alpha[1, :], beta[1, :]))
+    H = vcat(H, zeros(size(alpha[1, :]))')
+    H[size(H)[1], size(H)[2]] = beta[size(beta)[2]]
     
     actual_iterations = size(H)[1]
     
@@ -40,19 +41,7 @@ end
 function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::Int)
     
     """
-    This version of GMRES we transform the problem in this way:
-    
-    min y = ||H_ny - be_1||_2 -> min y = ||Ry - Q^T(be1)||_2
-    Solving then the Triangular system Ry = Q^T(be1), we can do this since Q is orthogonal 
-    multiplying do not affect the norm 2.
-    
-    - After we ran Arnoldi and get Q and Hn 
-    - Extend H_n+1 by adding a new column and row
-    - Use Given rotation to modify the extended H_n+1 to stay upper Hessenberg
-    - Update R and Q
-
-    1. QR fact from Lanczos QR
-    2. Solve via backsubstitution
+    Uses LanczosQR to compute the QR factorization of H efficiently, then solves the minimum problem using LeastSquares_QR
     """
 
     m = size(A, 1)
@@ -70,9 +59,9 @@ function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::In
 end
 
 
-
-mat_size = 20
-diag_size = 10
+#=
+mat_size = 1000
+diag_size = 800
 D = SparseMatrixCSC(1.0 * I(diag_size))
 E = sprand(mat_size - diag_size, diag_size, .7)
 
@@ -99,4 +88,4 @@ println("Reference GMRES error is :", norm(Asym*x - b))
 @time x = Asym \ b
 println("Default solver error is :", norm(Asym*x - b))
 
-
+=#

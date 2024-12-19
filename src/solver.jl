@@ -59,11 +59,16 @@ println(det(E*Eᵀ))
 
 A = SparseMatrixCSC(A)
 
+display(A)
 
-y = rand(size(A, 2))
+y = SparseVector(rand(size(A, 2)))
 
-n = 20
+n = size(A)[1]
 
-x = GMRES(A, y, n)
+#@time x = GMRES_IncrementalQR(A, y, n)
+@time x1 = GMRES_reference(A, y, n)
 
-println(norm(A*x - y))
+# println("size is: ", size(x))
+
+#println(norm(A*x - y))
+println(norm(A*x1 - y))

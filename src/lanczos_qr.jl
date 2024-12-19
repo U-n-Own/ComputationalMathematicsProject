@@ -23,6 +23,10 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
     R = SparseMatrixCSC(zeros(n+1, n))
     
     for j in 1:n
+        
+        if j % 500 == 0
+            println(j, "-th iteration")
+        end
     
         if j == 1
             # base case
