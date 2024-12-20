@@ -60,6 +60,34 @@
 \newtheorem{remark}{Remark}
 
 \begin{document}
+
+ \section*{Notation List}
+
+
+\begin{longtable}{}
+  $D$ & \ A diagonal matrix \dotfill \pageref{symbol:D} \\
+  $E$ & \ A matrix obtained by removing the last row from the node-arc incidence matrix of a given connected directed graph \dotfill \pageref{symbol:E} \\
+  $x$ & \ A variable we want to solve for \dotfill \pageref{symbol:x} \\
+  $y$ & \ Vector of the linear system \dotfill \pageref{symbol:y} \\
+  $b$ & \ Vector of the linear system \dotfill \pageref{symbol:b} \\
+  $c$ & \ Vector of the linear system \dotfill \pageref{symbol:c} \\
+  $A$ & \ Matrix of the linear system \dotfill \pageref{symbol:A} \\
+  $H_n$ & \ The $n \times n$ upper Hessenberg matrix \dotfill \pageref{symbol:H_n} \\
+  \hess & \ The $n+1 \times n$ Hessenberg matrix \dotfill \pageref{symbol:hess} \\
+  $K_n$ & \ The Krylov space of dimension $n$ \dotfill \pageref{symbol:K_n} \\
+  $Q_n$ & \ The matrix of the Arnoldi basis \dotfill \pageref{symbol:Q_n} \\
+  $\alpha$ & \ The diagonal of the Hessenberg matrix \dotfill \pageref{symbol:alpha} \\
+  $\beta$ & \ The subdiagonal of the Hessenberg matrix \dotfill \pageref{symbol:beta} \\
+  $Q'$ & \ The matrix $Q$ with an extra row and column \dotfill \pageref{symbol:Q'} \\
+  $H_{refl}$ & \ The Householder reflection matrix \dotfill \pageref{symbol:H_{refl}} \\
+  $O$ & \ The orthogonal matrix that makes $Q'^T_{old} \hess_n$ triangular \dotfill \pageref{symbol:O} \\
+  $R$ & \ The upper triangular matrix of the QR factorization of $\hess_n$ \dotfill \pageref{symbol:R} \\
+  $Q$ & \ The orthogonal matrix of the QR factorization of $\hess_n$ \dotfill \pageref{symbol:Q} \\
+  $z$ & \ The variable of the minimum problem we simplified \dotfill \pageref{symbol:z} \\
+\end{longtable}
+
+ \newpage
+
  \section*{Notes}
  These notes shall serve as aid for the implementation, and will eventually be integrated into the report;
 
@@ -67,7 +95,7 @@
  \begin{framed}
  (P) is a sparse linear system of the form:
  \[
- \begin{bmatrix}
+ \begin{bmatrix} \label{eq:1}
 D & E^T\\
 E & 0
 \end{bmatrix}
@@ -217,7 +245,7 @@ A trivial way to implement GMRES would be:
 However, the requested version should compute the QR factorization during the Lanczos iteration.
 
 \subsubsection{Extending the QR decomposition}
-Assume we have $\underbar H_{n-1} = Q_{old}R_{old}$. $\underbar H_n$ will be computed using a Lanczos iteration, obtaining:
+Assume we have $\underbar H_{n-1} = Q_{old}R_{old}$. The matrix $\underbar H_n$ will be computed using a Lanczos iteration, obtaining:
 \[\underbar H_n = \left[\begin{array}{ c | c }
     \underbar H_{n-1} & \begin{matrix}
            0\\
@@ -362,5 +390,4 @@ Recall that $R_{old}$ is an $n \times (n-1)$ upper triangular matrix, hence it h
 \endgroup
   \end{proof}
 \noindent Once we have transformed the problem to this form, if $R_0$ is invertible (which is true iff the $\underbar H_n$ is full-rank), we have obtained a \emph{triangular system}, which is efficiently solved by backsubstitution.
- \end{document}
- 
+  \end{document} 
