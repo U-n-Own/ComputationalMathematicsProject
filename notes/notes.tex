@@ -3,8 +3,25 @@
 \usepackage[margin = 3cm]{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{framed}
+\usepackage{sidenotes}
+
+\lstdefinelanguage{Julia}%
+  {morekeywords={abstract,break,case,catch,const,continue,do,else,elseif,%
+      end,export,false,for,function,immutable,import,importall,if,in,%
+      macro,module,otherwise,quote,return,switch,true,try,type,typealias,%
+      using,while},%
+   sensitive=true,%
+   alsoother={\$},%
+   morecomment=[l]\#,%
+   morecomment=[n]{\#=}{=\#},%
+   morestring=[s]{"}{"},%
+   morestring=[m]{'}{'},%
+}[keywords,comments,strings]%
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -44,21 +61,60 @@
 
 \begin{document}
  \section*{Notes}
- These notes should serve as aid for the implementation, and will eventually be integrated into the report;
+ These notes shall serve as aid for the implementation, and will eventually be integrated into the report;
 
- 
+ \section{Problem Statement}
+ \begin{framed}
+ (P) is a sparse linear system of the form:
+ \[
+ \begin{bmatrix}
+D & E^T\\
+E & 0
+\end{bmatrix}
+\begin{bmatrix}
+x\\y
+\end{bmatrix}
+=
+\begin{bmatrix}
+b\\c
+\end{bmatrix}
+ \]
+ where $D\in\mathbb{R}^{m\times m}$ is a diagonal positive definite matrix (i.e., $D = \operatorname{diag}( D ) > 0$
+) and $E\in\mathbb{R}^{(n-1)\times m}$ is obtained by removing the last row from the node-arc incidence matrix of a given connected directed graph. These problems arise as the KKT system of the convex quadratic separable Min-Cost Flow Problem, hence you can look, e.g., \href{https://commalab.di.unipi.it/datasets/mcf}{here} for ways to generate meaningful instances of the problem.\medskip
+\begin{itemize}
+ \item 
+(A1) is GMRES, and you must solve the internal problems $\min \bigl\| H_n y - \|b\| e_1 \bigr\|$
+ by updating the QR factorization of $H_n$
+ at each step: given the QR factorization of $H_{n-1}$
+ computed at the previous step, apply one more orthogonal transformation to compute that of $H_n$.
+\item (A2)is the same GMRES, but using the so-called \emph{Schur complement preconditioner}
+$$P = \begin{bmatrix}
+     D & 0\\
+     E & S
+    \end{bmatrix}$$
+    where $S$
+ is either $S=ED^{-1}E^T$
+ or a sparse approximation of it (to obtain it, for instance, replace the smallest off-diagonal entries of $S$
+ with zeros).
+
+\end{itemize}
+No off-the-shelf solvers allowed.
+
+ \end{framed}
+\newpage
  \section{GMRES}
  
- We want to find:
+GMRES is an iterative method for computing an approximation of the solution to the linear system $Ax = y$. It accomplishes such approximation by computing:
  \[\min_{x \in K_n(A, y)} \|Ax - y\|\]
+ i.e. by finding the minimum $x$ within the \emph{Krylov Space} $K_n(A, y)$ such that the norm of the residual $Ax - y$ is minimized.
  \subsection{Background: Krylov Spaces and Arnoldi} 
  Given a non-necessarily-symmetric matrix (although in our case it is) $A \in \rmatr mm$, a vector $y \in \rvect m$, and a natural number $n\leq m$:
- \[K_n(A, y) = \spann (y, Ay, A^2y, \hdots, A^{n-1}y)\]
- We can obtain a decent basis for this vector space by running the Arnoldi Algorithm:
- \[\arnoldi(A, y, n) = Q_n, \hess_n\]
+ \[K_n(A, y) = \spann (y, Ay, A^2y, \hdots, A^{n-1}y).\]
+ We can obtain a good basis for this vector space by using the Arnoldi Algorithm:
+ \[\arnoldi(A, y, n) =: Q_n, \hess_n\]
  Where:
  \begin{itemize}
-  \item $Q_n \in \rmatr nm$ is the matrix $(q_1 \mid \hdots \mid q_n)$ of vectors in the basis
+  \item $Q_n \in \rmatr nm$ is the matrix $(q_1 \mid \hdots \mid q_n)$ of vectors in the basis;
   \item $\hess_n \in \rmatr {n+1} {n}$ is a matrix such that:
   \begin{enumerate}
    \item 
@@ -80,15 +136,18 @@ AQ_n = Q_{n+1} \hess_n \label{arnoldi_eq}
  \end{remark}
 
  \subsection{Simplifying the minimum problem}
- We simplify the minimum problem as follows:
+ We can simplify the minimum problem to: $$\min_{z \in \reals} \|\hess_n z - e_1\|y\|\|$$
+ \begin{proof}
  \begin{align}
-  \min_{x \in K_n(A, y)} \|A x - y\| &= \min_{z \in \reals} \|A Q_n z - y\| \tag{$q_i$s are basis of $K_n(A, y)$}\\
+  \min_{x \in K_n(A, y)} \|A x - y\| &= \min_{z \in \reals} \|A Q_n z - y\| \tag{$q_i$s form basis of $K_n(A, y)$}\\
   &= \min_{z \in \reals} \|Q_{n+1}\hess_n z - y\| \tag{by \eqref {arnoldi_eq}}\\
   &= \min_{z \in \reals} \|Q_{n+1}^T(Q_{n+1}\hess_n z - y)\| \tag{$Q_{n+1}^T$ orthogonal}\\
   &= \min_{z \in \reals} \|\hess_n z - Q_{n+1}^T y)\| \tag{$Q_{n+1}$ orthogonal}\\
   &= \min_{z \in \reals} \|\hess_n z - Q_{n+1}^T q_1 \|y\|\| \tag{by Remark \ref{q1}}\\
   &= \min_{z \in \reals} \|\hess_n z - e_1\|y\|\| \tag{$Q_{n+1}^T$ orthogonal}
  \end{align}
+
+ \end{proof}
 
  \newpage
 
@@ -105,10 +164,10 @@ AQ_n = Q_{n+1} \hess_n \label{arnoldi_eq}
     &&&& \beta_{m-1} & \alpha_m
    \end{bmatrix}
 \]
-This allows us to perform the computations without storing the whole matrix, but only the diagonal and subdiagonal. The algorithm is as follows: {\color{red}TODO: Write only pseudocode}
+This allows us to perform the computations without storing the whole matrix, but only the diagonal and subdiagonal. The Julia implementation of the algorithm is as follows: \sidenote{\color{red}TODO: Write this as pseudocode}
 
-\begin{lstlisting}
- function Lanczos(A::SparseMatrixCSC, y::Vector, n::Int)
+\begin{lstlisting}[language = julia]
+function Lanczos(A::SparseMatrixCSC, y::SparseVector, n::Int)
     
     alpha = zeros(1,n)      # diagonal of H
     beta = zeros(1,n)       # subdiagonal of H (= superdiagonal of H because symmetric)
@@ -126,6 +185,9 @@ This allows us to perform the computations without storing the whole matrix, but
     # inductive case
     
     for j in 2:n
+        if j % 500 == 0
+            println(j, "-th Lanczos iteration")
+        end
         if beta[j-1] < 1e-13
             println("Breakdown");
             return
@@ -136,8 +198,6 @@ This allows us to perform the computations without storing the whole matrix, but
         w = A * q
         alpha[j] = w' * q
         w = w - alpha[j] * q - beta[j-1] * L[:, j-1]
-        println("w")
-        display(w)
         beta[j] = norm(w)
         
     end 
@@ -154,8 +214,7 @@ A trivial way to implement GMRES would be:
  \item Compute the QR factorization of $\hess_n$
  \item Use the factorization to easily solve the linear system arising from the minimum problem.
 \end{itemize}
-
-The requested optimization asks to compute the QR factorization during the Lanczos iteration.
+However, the requested version should compute the QR factorization during the Lanczos iteration.
 
 \subsubsection{Extending the QR decomposition}
 Assume we have $\underbar H_{n-1} = Q_{old}R_{old}$. $\underbar H_n$ will be computed using a Lanczos iteration, obtaining:
@@ -245,7 +304,7 @@ Recall that $R_{old}$ is an $n \times (n-1)$ upper triangular matrix, hence it h
             0,
             \beta_{n-1},
             \alpha_n]Q'_{old})^T\]
-  Let $q_1 ... q_n$ be the columns of $Q'_{old}$. ({\color{red} TODO rename Lanczos basis vector to $b_i$?}) The result is:
+  Let $q_1 ... q_n$ be the columns of $Q'_{old}$. (\sidenote{\color{red} Too many $Q$s: TODO rename Lanczos basis vector to $b_i$?}) The result is:
   \[\sum_i \beta_{n-1} q_{i, n-1} + \alpha_{n} q_{i, n}\]
   This can be rewritten, letting $r_1...r_n$ be the rows of $Q'_{old}$, as:
   \[\beta_{n-1}r_{n-1} + \alpha_n r_{n}\]
@@ -262,12 +321,46 @@ Recall that $R_{old}$ is an $n \times (n-1)$ upper triangular matrix, hence it h
   
   Altenatively we can calculate the new Q as follows:
   \[Q = O^T Q'_{old} = OQ_{old}\]
-  By the symmetry of $O$, which is guaranteed by the symmetry of $H_{refl}$.
+  By the symmetry of $O$, which is guaranteed by the symmetry of $H_{refl}$. Computationally, we only need to update the last two columns of $Q$, so we need not construct $O$ explicitly. The following Julia snippet shows such computation \sidenote{\color{red} TODO write pseudocode instead}
+
+\begin{lstlisting}[language = Julia]
+  Q[j+1, j+1] = 1.0
+
+  newcols = zeros(j+1, 2)
+              
+  for i in 1:j+1
+    # Compute Q_old * O without constructing O
+    # Can compute Q_old * O instead of Q_old * O' because O is sym.
+                  
+    newcols[i, 1]     = Q[i, j] * Hrefl[1,1] + Q[i, j+1] * Hrefl[2,1]
+    newcols[i, 2]   = Q[i, j] * Hrefl[1,2] + Q[i, j+1] * Hrefl[2,2]
+  end
+              
+  Q[1:j+1, j:j+1] = newcols
+\end{lstlisting}
+
   
   \newpage
   \subsection{Solving the minimum problem, given QR}
-  Given the QR factorization of $\underbar H$, we can compute  the solution to the following minimum problem:
-  \[\min_{z \in \reals} \|\hess_n z - e_1\|y\|\|\]
+  Given the QR factorization of $\underbar H_n$, we can transform our minimum problem:
+  \[\boxed{\min_{z \in \reals} \|\hess_n z - e_1\|y\|\|} 
+  \text{ \quad into \quad }\boxed{\min_{z \in \reals} \|R_0 z - Q_0^T (e_1 \|y\|)\|}.\]
+  \begin{proof} Let $\underbar H_n = QR$, \quad $Q = [Q_0, Q_c]$, \quad $R = [R_0, 0]^T$.
   
+  \begingroup
+\addtolength{\jot}{.5em}
+   \begin{align}
+     \|\hess_n z - e_1\|y\|\| &= \|Q^T (\hess_n z - e_1\|y\|)\| \tag{$Q^T$ is norm-preserving}\\
+     &= \|Q^TQRz - Q^T( e_1\|y\|)\| \tag{QR factorization of $\underbar H_n$}\\
+     &= \left \| \begin{bmatrix}R_0 \\ 0\end{bmatrix} z - \begin{bmatrix}Q_0^T \\ Q_c^T\end{bmatrix} ( e_1\|y\|) \right \| \tag{assumption}\\
+     &= \left \|\begin{bmatrix}
+         R_0 z - Q_0^T ( e_1\|y\|)\\
+         -Q_c^T (e_1\|y\|)
+        \end{bmatrix}\right \| \tag{vector algebra}
+   \end{align}
+   Whose minimum is only influenced by the top portion (the bottom one does not depend on $z$).
+\endgroup
+  \end{proof}
+\noindent Once we have transformed the problem to this form, if $R_0$ is invertible (which is true iff the $\underbar H_n$ is full-rank), we have obtained a \emph{triangular system}, which is efficiently solved by backsubstitution.
  \end{document}
  
