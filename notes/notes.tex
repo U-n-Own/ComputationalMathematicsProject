@@ -9,6 +9,8 @@
 \usepackage{hyperref}
 \usepackage{framed}
 \usepackage{sidenotes}
+\usepackage{longtable}
+\usepackage{makecell}
 
 \lstdefinelanguage{Julia}%
   {morekeywords={abstract,break,case,catch,const,continue,do,else,elseif,%
@@ -63,10 +65,9 @@
 
  \section*{Notation List}
 
-
-\begin{longtable}{}
+\begin{longtable}{r|r}
   $D$ & \ A diagonal matrix \dotfill \pageref{symbol:D} \\
-  $E$ & \ A matrix obtained by removing the last row from the node-arc incidence matrix of a given connected directed graph \dotfill \pageref{symbol:E} \\
+  $E$ & \ \makecell{A matrix obtained by removing the last row from \\the node-arc incidence matrix of a given connected directed graph }\dotfill \pageref{symbol:E} \\
   $x$ & \ A variable we want to solve for \dotfill \pageref{symbol:x} \\
   $y$ & \ Vector of the linear system \dotfill \pageref{symbol:y} \\
   $b$ & \ Vector of the linear system \dotfill \pageref{symbol:b} \\
