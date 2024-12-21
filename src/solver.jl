@@ -41,13 +41,11 @@ flows, E, edge_data = load_mcfp_data("dataset/net10_8_1.dmx_out.npz")
 
 
 # --------------- Construct the augmented system:
-Deye = Diagonal(ones(Int, size(E, 2)))
+Deye = I(size(E, 2)) * 1.0
 
-E = Int.(E)
+Eᵀ = transpose(E) * 1.0
 
-Eᵀ = transpose(E)
-
-Z = Int.(zeros(size(E, 1), size(E, 1))) 
+Z = zeros(size(E, 1), size(E, 1))
 
 A = [Deye Eᵀ ;
      E Z]
@@ -65,10 +63,10 @@ y = SparseVector(rand(size(A, 2)))
 
 n = size(A)[1]
 
-#@time x = GMRES_IncrementalQR(A, y, n)
-@time x1 = GMRES_reference(A, y, n)
+@time x = GMRES_lanczosQR_reference(A, y, n)
+#@time x1 = GMRES_reference(A, y, n)
 
 # println("size is: ", size(x))
 
-#println(norm(A*x - y))
-println(norm(A*x1 - y))
+println(norm(A * x - y))
+#println(norm(A*x1 - y))

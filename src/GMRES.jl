@@ -38,6 +38,16 @@ function GMRES_reference(A::SparseMatrixCSC, y::SparseVector, n::Int)
 end
 
 
+function GMRES_lanczosQR_reference(A::SparseMatrixCSC, y::SparseVector, n::Int)
+    L, α, β, Q, R = LanczosQR(A, y, n)
+    
+    H = Q * R
+    e1 = Matrix(1.0 * I(size(H)[1]))[:, 1]
+    println("time to compute the result")
+    
+    return L * (H \ (e1 * norm(y)))
+end
+
 function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::Int)
     
     """
@@ -58,7 +68,20 @@ function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::In
 
 end
 
+#=
+D = SparseMatrixCSC(1.0 * I(1000))
+E = sprand(200, 1000, .7)
+Z = SparseMatrixCSC(zeros(200, 200))
 
+A = hcat(vcat(D, E), vcat(E', Z))
+
+b = sprand(1200, .7)
+
+x = GMRES_lanczosQR_reference(A, b, 1200)
+
+println(norm(A * x - b))
+
+=#
 #=
 mat_size = 1000
 diag_size = 800
