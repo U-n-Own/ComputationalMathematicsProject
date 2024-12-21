@@ -41,6 +41,10 @@ flows, E, edge_data = load_mcfp_data("dataset/net10_8_1.dmx_out.npz")
 
 
 # --------------- Construct the augmented system:
+
+
+E = E[1 : size(E)[1] - 1, :]
+
 Deye = I(size(E, 2)) * 1.0
 
 Eᵀ = transpose(E) * 1.0
