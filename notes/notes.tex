@@ -195,7 +195,7 @@ AQ_n = Q_{n+1} \hess_n \label{arnoldi_eq}
 \]
 This allows us to perform the computations without storing the whole matrix, but only the diagonal and subdiagonal. The Julia implementation of the algorithm is as follows: \sidenote{\color{red}TODO: Write this as pseudocode}
 
-\begin{lstlisting}[language = julia]
+\begin{lstlisting}
 function Lanczos(A::SparseMatrixCSC, y::SparseVector, n::Int)
     
     alpha = zeros(1,n)      # diagonal of H
@@ -352,7 +352,7 @@ Recall that $R_{old}$ is an $n \times (n-1)$ upper triangular matrix, hence it h
   \[Q = O^T Q'_{old} = OQ_{old}\]
   By the symmetry of $O$, which is guaranteed by the symmetry of $H_{refl}$. Computationally, we only need to update the last two columns of $Q$, so we need not construct $O$ explicitly. The following Julia snippet shows such computation \sidenote{\color{red} TODO write pseudocode instead}
 
-\begin{lstlisting}[language = Julia]
+\begin{lstlisting}
   Q[j+1, j+1] = 1.0
 
   newcols = zeros(j+1, 2)
@@ -391,4 +391,79 @@ Recall that $R_{old}$ is an $n \times (n-1)$ upper triangular matrix, hence it h
 \endgroup
   \end{proof}
 \noindent Once we have transformed the problem to this form, if $R_0$ is invertible (which is true iff the $\underbar H_n$ is full-rank), we have obtained a \emph{triangular system}, which is efficiently solved by backsubstitution.
-  \end{document} 
+
+\newpage
+
+\section{Generating instances of the problem}
+
+The problem arises from the KKT system of the convex quadratic separable Min-Cost Flow Problem. The problem is defined as follows:
+\begin{itemize}
+ \item Let $G = (V, A)$ be a graph, with $V$ its set of nodes, and $A$ its set of arcs.
+ \item Let $b \in \mathbb R ^{|V|}$ be a vector of \emph{node flows} (based on which we can classify nodes as source, target or transshipment).
+ \item Let $x \in \mathbb R^{|A|}$ be a \emph{flow assignment}:
+ \[x = \begin{bmatrix}
+    \varphi_1\\
+    \vdots\\
+    \varphi_{|A|}
+   \end{bmatrix}
+\]
+\item Let $\varphi_{ij}$ be the flow on the edge $(i, j) \in A$.
+\item Let $C_{ij} : \reals \to \reals$ be a quadratic function that maps a flow $\varphi$ to the \emph{cost} of transporting such flow through the $(i, j)$ edge.
+\end{itemize}
+
+We formulate the problem as follows:
+\[ \min \sum_{(i, j) \in E} C_{ij} (\varphi_{ij}) \]
+With the constraint given by Kirchhoff's law of conservation of flow:
+\[ \forall i \in V . \sum_{\scriptsize \makecell{i \in V\\(j, i) \in A}} \varphi_{i, j} - \sum_{\scriptsize \makecell{i \in V\\(i, j) \in A}} \varphi_{i, j} = b_i.\]
+There would be other constraints, e.g. the non-negativity of flows or per-edge upper and lower bounds to the flows, but in order to obtain a KKT system of the requested shape we do not consider these.
+
+\subsection{Problem and constraints in matrix form}
+We mentioned that each function $C_{ij}(\varphi)$ is quadratic. Let us write it as:
+\[ \forall e \in A \;.\; C_{e} (\varphi) = \dfrac12 c_{e} \varphi^2 + d_{e} \varphi \]
+We can thus rewrite the minimum problem as:
+\[\min \left ( x^T D x + \langle d, x \rangle \right )
+\]
+Where:
+\[D = \begin{bmatrix}
+            c_1 &  & 0\\
+             &\ddots & \\
+            0  & & c_{|A|}\\
+           \end{bmatrix}\quad\quad d =
+           \begin{bmatrix}
+           d_1\\
+           \vdots\\
+           d_{|A|}
+           \end{bmatrix}
+           \]
+Additionally, given the incidence matrix $\underline E$, we can write the constraint as simply $\underline E x = b$.
+\newpage
+\subsection{KKT System}
+From the above problem and equality constraint, we obtain the following system:
+\begin{align}
+ \underline{E} x &= b \tag{KKT-F}\\
+ Dx + \underline{E}^T \cdot \mu &= -d \tag{KKT-G}
+\end{align}
+With $\mu \in \reals$. The system can be rewritten as:
+\[
+\begin{bmatrix}
+D & \underline E^T\\
+\underline E & 0\\
+\end{bmatrix}\begin{bmatrix}
+x\\ \mu
+\end{bmatrix} = \begin{bmatrix}
+-d\\b
+\end{bmatrix}
+\]
+In order to obtain an equivalent full-rank system, as suggested in the problem statement, we can remove one row from the incidence matrix.
+
+\subsection{Netgen dataset, and generating $D$}
+In order to obtain realistic instances to test our algorithms, we used the netgen \sidenote{\color{red}add citation} dataset. This provides graphs in the DIMACS format defined in [\sidenote{\color{red}add citation}], coming with the following information:
+\begin{itemize}
+ \item Node flow of each vertex
+ \item Source, target, capacity, and \emph{linear} cost of each edge.
+\end{itemize}
+The main issue with this dataset is that, indeed, the per-edge costs are meant to be used as linear costs, whereas we need to adapt them to be used in a quadratic cost setting. \medskip
+
+\noindent Luckily, Frangioni et al. [\sidenote{\color{red}add citation}] propose a procedure for generating realistic quadratic costs given the linear costs. Such procedure consists in, given linear costs $\{b_{ij} \mid (i, j) \in A\}$, uniformly generating the quadratic costs $c_{ij}$ in an interval such as $[3b_{ij}, 10b_{ij} ]$ or $[100b_{ij}, 1000b_{ij} ]$.
+
+\end{document}

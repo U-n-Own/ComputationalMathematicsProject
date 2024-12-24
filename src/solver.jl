@@ -9,6 +9,8 @@ using LightGraphs
 
 include("GMRES.jl")
 
+include("generate_matrix.jl")
+
 # We will use GMRES and could use SparseArrays and construct the KKT system
 # The prblem has a matrix is in this form: Augmented System
 
@@ -24,14 +26,18 @@ function load_mcfp_data(filename::String)
     Returns:
     D: Diagonal matrix
     E: Node arc incidence matrix
-    edge_data: Full edge informations with a tuple of (source, target, capacity, cost)
+    edge_data: Full edge informations with a tuple of (source, target, least flow, max flow, cost)
     """
 
     data = NPZ.npzread(filename)
 
-    flows = data["flows"]
+    flows = data["node_flows"]
     E = data["node_arc_matrix"]
     edge_data = data["full_edges"]
+
+    display(size(E))
+    display(size(flows))
+    display(size(edge_data[:, 5]))
 
     return flows, E, edge_data
 end
@@ -42,28 +48,19 @@ flows, E, edge_data = load_mcfp_data("dataset/net10_8_1.dmx_out.npz")
 
 # --------------- Construct the augmented system:
 
-
-E = E[1 : size(E)[1] - 1, :]
-
-Deye = I(size(E, 2)) * 1.0
-
-Eᵀ = transpose(E) * 1.0
-
-Z = zeros(size(E, 1), size(E, 1))
-
-A = [Deye Eᵀ ;
-     E Z]
+# A = gen_A_from_data(edge_data[:, 5], E)
+# A = gen_A_all_ones(E)
+A = gen_A_uniform(E)
 
 println(size(A))
-#cond(A)
+println("matrix has rank: ", rank(A))
 
-println(det(E*Eᵀ))
-
-A = SparseMatrixCSC(A)
+# println("condition number of A ", cond(Matrix(A)))
 
 display(A)
 
-y = SparseVector(rand(size(A, 2)))
+# y = SparseVector(rand(size(A, 2)))
+y = SparseVector(gen_y_from_data(flows, edge_data[:, 5]))
 
 n = size(A)[1]
 
