@@ -1,6 +1,6 @@
 using LinearAlgebra
 using Random
-using SparseArrays
+# using SparseArrays
 
 # Random.seed!(42)
 
@@ -40,7 +40,7 @@ function QR_fact(A :: Matrix)
     return (Q, R)
 end
 
-function LeastSquares_QR(Q :: SparseMatrixCSC, R :: SparseMatrixCSC, b :: SparseVector)
+function LeastSquares_QR(Q :: Matrix, R :: Matrix, b :: Vector)
     """
     Solve Least Squares problems given QR factorization by back substitution
     """

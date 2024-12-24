@@ -53,7 +53,7 @@ Z = zeros(size(E, 1), size(E, 1))
 
 A = [Deye Eᵀ ;
      E Z]
-#convert A in SparseArrays
+
 println(size(A))
 #cond(A)
 
@@ -67,7 +67,7 @@ y = SparseVector(rand(size(A, 2)))
 
 n = size(A)[1]
 
-@time x = GMRES_lanczosQR_reference(A, y, n)
+@time x = GMRES_IncrementalQR(A, y, n)
 #@time x1 = GMRES_reference(A, y, n)
 
 # println("size is: ", size(x))

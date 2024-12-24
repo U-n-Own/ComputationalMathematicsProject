@@ -20,8 +20,8 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
     L = zeros(size(A)[1], n)    # Lanczos Basis
     w = zeros(size(A)[1], 1)
     
-    Q = SparseMatrixCSC(zeros(n+1, n+1))
-    R = SparseMatrixCSC(zeros(n+1, n))
+    Q = zeros(n+1, n+1)
+    R = zeros(n+1, n)
     
     
     
@@ -36,7 +36,8 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
             println(j, "-th iteration")
             tick()
         end
-    
+
+
         if j == 1
             # base case
             q = y / norm(y)
@@ -56,7 +57,9 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
 
             beta[j] = norm(w)       # O(m)
         end
-            
+
+        begin
+
         # QR factorization
         if j == 1                   
             H1 = reshape([alpha[1] ; beta[1]], 2,1)     # O(1)
@@ -73,7 +76,6 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
             R[1:j, j] = [c[1:j-1] ; norm(x)]    #(O(j))
 
             Q[j+1, j+1] = 1.0
-
             newcols = zeros(j+1, 2) # O(j) Keeping this here is better for performance somehow
             
             # O(j)
@@ -94,6 +96,8 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
             end
             
         end
+        end
+
         
     end
     return (L, alpha, beta, Q, R)

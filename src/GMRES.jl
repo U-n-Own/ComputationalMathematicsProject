@@ -60,7 +60,7 @@ function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::In
     
     e1 = (1.0*I(iterations))[:, 1]
     
-    z = LeastSquares_QR(Q, R, SparseVector(e1*norm(y)))
+    z = LeastSquares_QR(Q, R, (e1*norm(y)))
     
     x = L[:, 1:iterations] * z
     
