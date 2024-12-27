@@ -1,5 +1,4 @@
-# WIP: I am converting LanczosQR's code to work with the preconditioner
-
+const PRECOND = "PAPT"
 
 using LinearAlgebra
 using Random
@@ -8,11 +7,36 @@ using ExponentialUtilities  # to compare with builtin arnoldi
 using TickTock  # to test complexity of LanczosQR
 
 include("QR.jl")
+include("lanczos_qr.jl")
 
 # Random.seed!(42)
 
+function LanczosQRPrecond_using_lanczosqr(D::Diagonal, E :: Matrix, y::Vector, n::Int)
+    sizeA = size(D)[1] + size(E)[1]
+    sizeD = size(D)[1]
+    heightE = size(E)[1]
+    S = E * inv(D) * E'
 
-function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::SparseVector, n::Int)
+    # construct matrix and vector
+    if PRECOND == "PAPT"
+        PAPT = SparseMatrixCSC([D*D*D D*D*E' + D*E'*S' ; (E*D + S*E)*D (E*D + S*E) * E' + E*E'*S'])
+        yu = y[1 : sizeD]
+        yb = y[sizeD + 1 : sizeA]
+        Py = SparseVector([D * yu ; E * yu + S * yb])
+        return LanczosQR(PAPT, Py, n)
+    else
+        PTAP = SparseMatrixCSC([(D*D+E'*E)*D + D*E'*E D'*E'*S ; S'*E*D zeros(heightE,heightE)])
+        yu = y[1 : sizeD]
+        yb = y[sizeD + 1 : sizeA]
+        PTy = SparseVector([D * yu + E' * yb ; S' * yb])
+        return LanczosQR(PTAP, PTy, n)
+    end
+
+
+end
+
+# TODO try to optimize this
+function LanczosQRPrecond(D::Diagonal, E :: Matrix, y::Vector, n::Int)
     """
     Builds QR factorization of H while performing Lanczos
     """     
@@ -20,19 +44,28 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::SparseVector, n:
     alpha = zeros(1,n)     # diagonal of H
     beta = zeros(1,n)    # subdiagonal of H (= superdiagonal of H because symmetric)
     
-    sizeA = size(D)[1] + size(E)[2]
+    sizeA = size(D)[1] + size(E)[1]
     sizeD = size(D)[1]
-    heightE = size(E)[2]
+    heightE = size(E)[1]
 
     L = zeros(sizeA, n)    # Lanczos Basis
-    w = zeros(sizeA, 1)
+    w = zeros(sizeA)
     
     Q = zeros(n+1, n+1)
     R = zeros(n+1, n)
     
-    
-    
-    
+    Eᵀ = E'
+    S = E * inv(D) * E'     # inv should be efficient (linear) because D is diagonal
+
+    yu = y[1 : sizeD]
+    yb = y[sizeD + 1 : sizeA]
+
+    if PRECOND == "PAPT"
+        y = [D * yu ; E * yu + S * yb]      # y = P * y
+    else
+        y = [D * yu + E' * yb ; S' * yb]    # y = P' * y
+    end
+
     # base case + n * (inductive case)
     # let A be m*m
     for j in 1:n
@@ -49,7 +82,21 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::SparseVector, n:
             # base case
             q = y / norm(y)
             L[:, 1] = q             # O(m)
-            w = A * q               # O(m^2)
+
+            qu = q[1 : sizeD]
+            qb = q[sizeD + 1 : sizeA]
+
+            # compute (PAP') q without constructing P
+
+            if PRECOND == "PAPT"
+                # P A P ' is [D*D*D D*D*E' + D*E'*S' ; (E*D + S*E)*D (E*D + S*E) * E' + E*E'*S']
+                w[1:sizeD] = (D.^3) * qu + (D*D*Eᵀ + D*Eᵀ*S') * qb # TODO analyze complexity
+                w[sizeD + 1 : sizeA] = ((E*D + S*E)*D) * qu + ((E*D + S*E) * E' + E*E'*S') * qb
+            else
+               # P' A P is [(D*D+E'*E)*D + D*E'*E D'*E'*S ; S'*E*D zeros(heightE,heightE)]
+                w[1:sizeD] = ((D*D+E'*E)*D + D*E'*E) * qu + (D'*E'*S) * qb
+                w[sizeD + 1 : sizeA] = (S'*E*D) * qu
+            end
             alpha[1] = w' * q       # O(m)
             w = w - alpha[1] * q    # O(m)
             beta[1] = norm(w)       # O(m)
@@ -61,7 +108,16 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::SparseVector, n:
             qu = q[1 : sizeD]
             qb = q[sizeD + 1 : sizeA]
 
-            w = [D * qu + E' * qb ; E * qu] # TODO analyze complexity
+            # compute (PAP') q without constructing P
+            if PRECOND == "PAPT"
+                # P A P ' is [D*D*D D*D*E' + D*E'*S' ; (E*D + S*E)*D (E*D + S*E) * E' + E*E'*S']
+                w[1:sizeD] = (D.^3) * qu + (D*D*Eᵀ + D*Eᵀ*S') * qb # TODO analyze complexity
+                w[sizeD + 1 : sizeA] = ((E*D + S*E)*D) * qu + ((E*D + S*E) * E' + E*E'*S') * qb
+            else
+               # P' A P is [(D*D+E'*E)*D + D*E'*E D'*E'*S ; S'*E*D zeros(heightE,heightE)]
+                w[1:sizeD] = ((D*D+E'*E)*D + D*E'*E) * qu + (D'*E'*S) * qb
+                w[sizeD + 1 : sizeA] = (S'*E*D) * qu
+            end
 
             alpha[j] = w' * q       # O(m)
             w = w - alpha[j] * q - beta[j-1] * L[:, j-1]        # O(m)
@@ -115,23 +171,48 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::SparseVector, n:
 
 end
 
-#=
-D = SparseMatrixCSC(1.0 * I(100))
-E = sprand(20, 100, .7)
-Z = SparseMatrixCSC(zeros(20, 20))
+dim1 = 800
+dim2 = 200
+dim = dim1 + dim2
+
+D = Diagonal(1.0 * I(dim1))
+E = Matrix(sprand(dim2, dim1, .7))
+Z = SparseMatrixCSC(zeros(dim2, dim2))
 
 A = hcat(vcat(D, E), vcat(E', Z))
 
-b = sprand(120, .7)
+b = Vector(sprand(dim, .7))
 
-L, alpha, beta, Q, R = LanczosQR(A, b, 120)
+L, alpha, beta, Q, R = LanczosQRPrecond(D, E, b, dim)
+
 
 H = Q*R
-println(size(R))
+# println(size(R))
 
-e1 = Matrix(1.0 * I(121))[:, 1]
+sizeA = size(D)[1] + size(E)[1]
+sizeD = size(D)[1]
+S = E * inv(D) * E'
 
-x = L * (H \ (e1 * norm(b)))
+
+e1 = Matrix(1.0 * I(dim + 1))[:, 1]
+
+if (PRECOND == "PAPT")
+    bu = b[1 : sizeD]
+    bb = b[sizeD + 1 : sizeA]
+    Pb = [D * bu ; E * bu + S * bb]
+    invPTx = L * (H \ (e1 * norm(Pb)))
+    xu = invPTx[1 : sizeD]
+    xb = invPTx[sizeD + 1 : sizeA]
+    x = [D * xu + E' * xb ; S' * xb]
+else
+    bu = b[1 : sizeD]
+    bb = b[sizeD + 1 : sizeA]
+    PTb = [D * bu + E' * bb ; S' * bb]
+    invPx  = L * (H \ (e1 * norm(PTb)))
+    xu = invPx[1 : sizeD]
+    xb = invPx[sizeD + 1 : sizeA]
+    x = [D * xu; E * xu + S * xb]
+end
 
 println(norm(A * x - b))
-=#
+
