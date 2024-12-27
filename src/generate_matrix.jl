@@ -27,6 +27,19 @@ function gen_A_from_data(lin_costs, E)
 
 end
 
+function gen_test_prec_from_data(lin_costs, E)
+    D = Diagonal(generate_quadratic_costs(lin_costs))
+    E = E[1 : size(E)[1] - 1, :]
+    Eᵀ = transpose(E) * 1.0
+    Dinv = Matrix(inv(D))
+    S = E * Dinv * Eᵀ
+    Z = zeros(size(D, 1), size(S, 2))
+    P = [D Z ;
+         E S]
+
+    return SparseMatrixCSC(P)
+end
+
 function gen_A_all_ones(E)
     E = E[1 : size(E)[1] - 1, :]
     Deye = I(size(E, 2)) * 1.0
@@ -39,6 +52,21 @@ function gen_A_all_ones(E)
     return SparseMatrixCSC(A)
 end
 
+
+function gen_test_prec_all_ones(E)
+    E = E[1 : size(E)[1] - 1, :]
+    Deye = I(size(E, 2)) * 1.0
+    Eᵀ = transpose(E) * 1.0
+    S = E * Deye * Eᵀ
+    Z = zeros(size(Deye, 1), size(S, 2))
+
+    P = [Deye Z ;
+         E S]
+
+    return SparseMatrixCSC(P)
+end
+
+
 function gen_A_uniform(E)
     E = E[1 : size(E)[1] - 1, :]
     D = diagm(rand(size(E, 2)))
@@ -50,7 +78,6 @@ function gen_A_uniform(E)
 
     return SparseMatrixCSC(A)
 end
-
 
 
 function gen_y_from_data(node_flows, lin_costs)

@@ -35,10 +35,6 @@ function load_mcfp_data(filename::String)
     E = data["node_arc_matrix"]
     edge_data = data["full_edges"]
 
-    display(size(E))
-    display(size(flows))
-    display(size(edge_data[:, 5]))
-
     return flows, E, edge_data
 end
 
@@ -49,13 +45,18 @@ flows, E, edge_data = load_mcfp_data("dataset/net10_8_1.dmx_out.npz")
 # --------------- Construct the augmented system:
 
 # A = gen_A_from_data(edge_data[:, 5], E)
-# A = gen_A_all_ones(E)
-A = gen_A_uniform(E)
+A = gen_A_all_ones(E)
+# A = gen_A_uniform(E)
 
-println(size(A))
-println("matrix has rank: ", rank(A))
+P = gen_test_prec_all_ones(E)
+# P = gen_test_prec_from_data(edge_data[:, 5], E)
 
-# println("condition number of A ", cond(Matrix(A)))
+PAPT = P * A * P'
+#=
+println("cond of matrix:", norm(A) * norm(inv(Matrix(A))))
+println("cond of precond matrix:", norm(PAPT) * norm(inv(Matrix(PAPT))))=#
+
+println("matrix A has rank: ", rank(A))
 
 display(A)
 
@@ -63,6 +64,8 @@ display(A)
 y = SparseVector(gen_y_from_data(flows, edge_data[:, 5]))
 
 n = size(A)[1]
+
+println("now solving non-precond problem:")
 
 @time x = GMRES_IncrementalQR(A, y, n)
 #@time x1 = GMRES_reference(A, y, n)
