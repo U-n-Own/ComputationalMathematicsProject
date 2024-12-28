@@ -39,38 +39,33 @@ function load_mcfp_data(filename::String)
 end
 
 # --------------- Load a problem from netgen (nb. netgen generate random easy graphs without structure)
-flows, E, edge_data = load_mcfp_data("dataset/net10_8_1.dmx_out.npz")
+flows, E_bar, edge_data = load_mcfp_data("dataset/net10_8_1.dmx_out.npz")
 
+println("density of E_bar: ", nnz(SparseMatrixCSC(E_bar))/(size(E_bar)[1] * size(E_bar)[2]))
 
 # --------------- Construct the augmented system:
 
-# A = gen_A_from_data(edge_data[:, 5], E)
-A = gen_A_all_ones(E)
-# A = gen_A_uniform(E)
+#D, E, A = gen_A_from_data(edge_data[:, 5], E_bar)
+D, E, A = gen_A_all_ones(E_bar)
+# D, E, A = gen_A_uniform(E_bar)
 
-P = gen_test_prec_all_ones(E)
-# P = gen_test_prec_from_data(edge_data[:, 5], E)
-
-PAPT = P * A * P'
-#=
-println("cond of matrix:", norm(A) * norm(inv(Matrix(A))))
-println("cond of precond matrix:", norm(PAPT) * norm(inv(Matrix(PAPT))))=#
 
 println("matrix A has rank: ", rank(A))
 
 display(A)
 
 # y = SparseVector(rand(size(A, 2)))
-y = SparseVector(gen_y_from_data(flows, edge_data[:, 5]))
+y = (gen_y_from_data(flows, edge_data[:, 5]))
 
 n = size(A)[1]
 
 println("now solving non-precond problem:")
 
 @time x = GMRES_IncrementalQR(A, y, n)
-#@time x1 = GMRES_reference(A, y, n)
+println(norm(A * x - y))
 
-# println("size is: ", size(x))
+println("now solving precond problem:")
+@time x = GMRES_IncrementalQR_precond(D, SparseMatrixCSC(E), y, n)
+
 
 println(norm(A * x - y))
-#println(norm(A*x1 - y))

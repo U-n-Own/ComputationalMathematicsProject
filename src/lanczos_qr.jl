@@ -9,7 +9,7 @@ include("QR.jl")
 # Random.seed!(42)
 
 
-function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
+function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
     """
     Builds QR factorization of H while performing Lanczos
     """     
@@ -22,9 +22,6 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
     
     Q = zeros(n+1, n+1)
     R = zeros(n+1, n)
-    
-    
-    
     
     # base case + n * (inductive case)
     # let A be m*m
@@ -67,7 +64,7 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
 
         else
             # last column of R:
-            c = beta[j-1] * Q[j-1, 1:j]' + alpha[j] * Q[j, 1:j]' # O(j)   (transpose does not impact on complexity)
+            c = beta[j-1] * Q[j-1, 1:j]' + alpha[j] * Q[j, 1:j]' # O(j)   (transpose does not impact on complexity(???))
             x = [c[j]; beta[j]]     # O(1)
             y = [norm(x), 0]        # O(1)
             v = x - y               # O(1)

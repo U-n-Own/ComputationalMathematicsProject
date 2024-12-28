@@ -12,9 +12,9 @@ function generate_quadratic_costs(lin_costs)
     return quadratic_costs
 end
 
-function gen_A_from_data(lin_costs, E)
-    D = diagm(generate_quadratic_costs(lin_costs))
-    E = E[1 : size(E)[1] - 1, :]
+function gen_A_from_data(lin_costs, E_bar)
+    D = Diagonal(generate_quadratic_costs(lin_costs))
+    E = E_bar[1 : size(E_bar)[1] - 1, :]
 
     Eᵀ = transpose(E) * 1.0
 
@@ -23,13 +23,13 @@ function gen_A_from_data(lin_costs, E)
     A = [D Eᵀ ;
          E Z]
 
-    return SparseMatrixCSC(A)
+    return D, E, SparseMatrixCSC(A)
 
 end
 
-function gen_test_prec_from_data(lin_costs, E)
+function gen_test_prec_from_data(lin_costs, E_bar)
     D = Diagonal(generate_quadratic_costs(lin_costs))
-    E = E[1 : size(E)[1] - 1, :]
+    E = E_bar[1 : size(E_bar)[1] - 1, :]
     Eᵀ = transpose(E) * 1.0
     Dinv = Matrix(inv(D))
     S = E * Dinv * Eᵀ
@@ -40,8 +40,8 @@ function gen_test_prec_from_data(lin_costs, E)
     return SparseMatrixCSC(P)
 end
 
-function gen_A_all_ones(E)
-    E = E[1 : size(E)[1] - 1, :]
+function gen_A_all_ones(E_bar)
+    E = E_bar[1 : size(E_bar)[1] - 1, :]
     Deye = I(size(E, 2)) * 1.0
     Eᵀ = transpose(E) * 1.0
     Z = zeros(size(E, 1), size(E, 1))
@@ -49,12 +49,12 @@ function gen_A_all_ones(E)
     A = [Deye Eᵀ ;
         E Z]
 
-    return SparseMatrixCSC(A)
+    return Deye, E, SparseMatrixCSC(A)
 end
 
 
-function gen_test_prec_all_ones(E)
-    E = E[1 : size(E)[1] - 1, :]
+function gen_test_prec_all_ones(E_bar)
+    E = E_bar[1 : size(E_bar)[1] - 1, :]
     Deye = I(size(E, 2)) * 1.0
     Eᵀ = transpose(E) * 1.0
     S = E * Deye * Eᵀ
@@ -67,8 +67,8 @@ function gen_test_prec_all_ones(E)
 end
 
 
-function gen_A_uniform(E)
-    E = E[1 : size(E)[1] - 1, :]
+function gen_A_uniform(E_bar)
+    E = E_bar[1 : size(E_bar)[1] - 1, :]
     D = diagm(rand(size(E, 2)))
     Eᵀ = transpose(E) * 1.0
     Z = zeros(size(E, 1), size(E, 1))
@@ -76,7 +76,7 @@ function gen_A_uniform(E)
     A = [D Eᵀ ;
          E Z]
 
-    return SparseMatrixCSC(A)
+    return D, E, SparseMatrixCSC(A)
 end
 
 

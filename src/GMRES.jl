@@ -12,12 +12,13 @@ using ExponentialUtilities
 include("Lanczos.jl")
 include("QR.jl")
 include("lanczos_qr.jl")
+include("lanczos_qr_precond.jl")
 
 
 # Random.seed!(42)
 
 
-function GMRES_reference(A::SparseMatrixCSC, y::SparseVector, n::Int)
+function GMRES_reference(A::SparseMatrixCSC, y::Vector, n::Int)
     L, alpha, beta = Lanczos(A, y, n)
 
     H = Matrix(SymTridiagonal(alpha[1, :], beta[1, :]))
@@ -25,7 +26,7 @@ function GMRES_reference(A::SparseMatrixCSC, y::SparseVector, n::Int)
     H[size(H)[1], size(H)[2]] = beta[size(beta)[2]]
     
     actual_iterations = size(H)[1]
-    
+
     # Solve min H_n - e1*norm(y) 
     e1 = (1.0*I(actual_iterations))[:, 1]
 
@@ -38,7 +39,7 @@ function GMRES_reference(A::SparseMatrixCSC, y::SparseVector, n::Int)
 end
 
 
-function GMRES_lanczosQR_reference(A::SparseMatrixCSC, y::SparseVector, n::Int)
+function GMRES_lanczosQR_reference(A::SparseMatrixCSC, y::Vector, n::Int)
     L, α, β, Q, R = LanczosQR(A, y, n)
     
     H = Q * R
@@ -48,14 +49,11 @@ function GMRES_lanczosQR_reference(A::SparseMatrixCSC, y::SparseVector, n::Int)
     return L * (H \ (e1 * norm(y)))
 end
 
-function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::Int)
+function GMRES_IncrementalQR(A::SparseMatrixCSC, y::Vector, iterations::Int)
     
     """
     Uses LanczosQR to compute the QR factorization of H efficiently, then solves the minimum problem using LeastSquares_QR
     """
-
-    m = size(A, 1)
-
     L, α, β, Q, R = LanczosQR(A, y, iterations)
     
     e1 = (1.0*I(iterations))[:, 1]
@@ -64,6 +62,57 @@ function GMRES_IncrementalQR(A::SparseMatrixCSC, y::SparseVector, iterations::In
     
     x = L[:, 1:iterations] * z
     
+    return x
+
+end
+
+function GMRES_IncrementalQR_precond(D::Diagonal, E::SparseMatrixCSC, y::Vector, iterations::Int)
+
+    """
+    Uses LanczosQR to compute the QR factorization of H efficiently, then solves the minimum problem using LeastSquares_QR
+    """
+
+    sizeD = size(D)[1]
+    sizeA = size(D)[1] + size(E)[1]
+    S = E * inv(D) * E'
+
+    # set off-diagonal elements of S under some threshold to zero
+    if THRESHOLD_ZERO > 0
+        threshold = THRESHOLD_ZERO
+        mask = .!I(heightE) .& (abs.(S) .< threshold)
+        S[mask] .= 0
+    end
+
+    L, α, β, Q, R = LanczosQRPrecond(D, E, y, iterations)
+
+    e1 = Matrix(1.0*I(iterations))[:, 1]
+
+    # Multiplying P (or P') by y
+    if (PRECOND == "PAPT")
+        bu = y[1 : sizeD]
+        bb = y[sizeD + 1 : sizeA]
+        y_prec = [D * bu ; E * bu + S * bb]
+    else
+        bu = y[1 : sizeD]
+        bb = y[sizeD + 1 : sizeA]
+        y_prec = [D * bu + E' * bb ; S' * bb]
+    end
+
+    z = LeastSquares_QR(Q, R, (e1*norm(y_prec)))
+
+    out_x = L[:, 1:iterations] * z
+
+    # reconstruct solution to original system
+    if (PRECOND == "PAPT")
+        xu = out_x[1 : sizeD]
+        xb = out_x[sizeD + 1 : sizeA]
+        x = [D * xu + E' * xb ; S' * xb]
+    else
+        xu = out_x[1 : sizeD]
+        xb = out_x[sizeD + 1 : sizeA]
+        x = [D * xu; E * xu + S * xb]
+    end
+
     return x
 
 end
