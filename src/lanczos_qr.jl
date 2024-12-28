@@ -29,10 +29,13 @@ function LanczosQR(A::SparseMatrixCSC, y::SparseVector, n::Int)
     # base case + n * (inductive case)
     # let A be m*m
     for j in 1:n
-        if j % 500 == 0
-            if j > 500
+        if j % 100 == 0
+            if j > 100
                 tock()
             end
+            # get residual
+            # stop at this iteration and get residual
+            
             println(j, "-th iteration")
             tick()
         end

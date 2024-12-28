@@ -67,10 +67,13 @@ n = size(A)[1]
 
 println("now solving non-precond problem:")
 
-@time x = GMRES_IncrementalQR(A, y, n)
+#@time x = GMRES_IncrementalQR(A, y, n)
+
+@time x1 = GMRES_Restarted(A, y, n, 100, 1e-6)
 #@time x1 = GMRES_reference(A, y, n)
 
 # println("size is: ", size(x))
+#plot times and residuals
 
-println(norm(A * x - y))
-#println(norm(A*x1 - y))
+#println("Non restarted residual", norm(A * x - y))
+println("Restarted residual: ", norm(A*x1 - y))
