@@ -117,6 +117,52 @@ function GMRES_IncrementalQR_precond(D::Diagonal, E::SparseMatrixCSC, y::Vector,
 
 end
 
+function GMRES_Restarted(GMRES_Method :: Function, A::SparseMatrixCSC, y::Vector, args :: Tuple, max_iter::Int, restart::Int, tol::Float64)
+    """
+    Implements Restarted GMRES.
+
+    max_iter: Int - maximum number of iterations allowed
+    restart: Int - number of iterations between restarts
+    tol: Float64 - convergence tolerance for current residual
+
+    Returns the solution vector x.
+    """
+    # Our initial guess is the zero vector, we progressively refine it with reusing solution
+    # from previous iterations
+    x = spzeros(size(A, 2))
+
+    # Current residual
+    r = y - A * x
+    norm_r = norm(r)
+
+    iter = 0
+    while norm_r > tol && iter < max_iter
+
+        # Perform GMRES for 'restart' iterations
+        dx = GMRES_Method(args..., Vector(r), restart)
+
+        # Update solution and residual
+        x += dx
+        r = y - A * x
+        norm_r = norm(r)
+
+        iter += restart
+
+        println("Iteration $iter, Residual Norm: $norm_r")
+    end
+
+    if norm_r <= tol
+        println("Converged in $iter iterations with residual norm $norm_r")
+    else
+        println("Did not converge within $max_iter iterations. Final residual norm: $norm_r")
+    end
+
+    return x
+end
+
+
+
+
 #=
 D = SparseMatrixCSC(1.0 * I(1000))
 E = sprand(200, 1000, .7)

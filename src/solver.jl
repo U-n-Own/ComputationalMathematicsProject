@@ -64,8 +64,17 @@ println("now solving non-precond problem:")
 @time x = GMRES_IncrementalQR(A, y, n)
 println(norm(A * x - y))
 
+println("now solving non-precond problem with restarted algo:")
+
+@time x = GMRES_Restarted(GMRES_IncrementalQR, A, y, (A,), n, 100, 10E-10)
+println(norm(A * x - y))
+
 println("now solving precond problem:")
 @time x = GMRES_IncrementalQR_precond(D, SparseMatrixCSC(E), y, n)
 
+println(norm(A * x - y))
 
+println("now solving non-precond problem with restarted algo:")
+
+@time x = GMRES_Restarted(GMRES_IncrementalQR_precond, A, y, (D, SparseMatrixCSC(E)), n, 2000, 10E-10)
 println(norm(A * x - y))
