@@ -466,4 +466,66 @@ The main issue with this dataset is that, indeed, the per-edge costs are meant t
 
 \noindent Luckily, Frangioni et al. [\sidenote{\color{red}add citation}] propose a procedure for generating realistic quadratic costs given the linear costs. Such procedure consists in, given linear costs $\{b_{ij} \mid (i, j) \in A\}$, uniformly generating the quadratic costs $c_{ij}$ in an interval such as $[3b_{ij}, 10b_{ij} ]$ or $[100b_{ij}, 1000b_{ij} ]$.
 
+\newpage
+
+\section{Restarted GMRES}
+
+A common issue with GMRES is that it is a costly computational method that need to keep in memory
+ all the vectors of the basis $Q_n$ and the Hessenberg matrix $H_n$. Also the cost of orthogonalization grows with iterations [\sidenote{\color{red}Check also what are the computational cost}]
+ This can be a problem when the matrix $A$ is large thus requiring a large number of iterations to converge to the lucky breakdown.
+ Especially when the matrix is ill-conditioned, one way to mitigate those issues is to \emph{restart} the algorithm after a certain number of iterations. The restarted GMRES algorithm is as follows: \newline
+
+\begin{lstlisting}
+function RestartedGMRES(GMRES_Method, A, y, max_iter, restart, tol)
+    
+    x = zeros(size(A)[2])
+
+    # Initial guess is initial r0
+    r = y - A * x
+    norm_r = norm(r)
+
+    iter = 0
+
+    while iter < max_iter && norm_r > tol
+
+      # Perform GMRES and get current solution
+      dx = GMRES_Method(A, y, restart)
+
+      x += dx
+      r = y - A * x
+      norm_r = norm(r)
+
+      iter += restart
+    end
+
+    if norm_r > tol
+      println("Did not converge")
+    end
+
+    return x
+
+\end{lstlisting}
+
+%We got the idea for this algorithm from the book \emph{Iterative Methods for Sparse Linear Systems} by Yousef Saad.
+This method is particularly useful but has some drawbacks, 
+ for example, the convergence of the restarted GMRES is not guaranteed, 
+ and the number of iterations is not predictable.
+ The choice of the restart parameter is crucial, and it is usually chosen empirically.
+ % make some space
+ \vspace{0.3cm}
+
+ Let $r_0$ be the initial residual $r_0 = y-Ax_{0}$, and $r_1$ the residual at the $1$-st restart.
+ Then we know that $r_0 = y$ and $r_1 = y - Ax_1$. Where $x_1 = x_0 + dx$ is the solution after the first restart.
+ We can see that:
+ \begin{align}
+  r_0 = y - Ax_0 = y \\
+  Ax_1 \approx r_0 \\
+  A(x_0 + x_1) = Ax_0 + Ax_1 = y - r_0 + \tilde{r_0} \approx y
+ \end{align}
+ 
+ So effectively, the restarted GMRES is solving the system $Ax = y$ with a sightly different $y$ at each restart.
+
+ \subsection{Restart properties and issues}
+   %todo 
+
 \end{document}
