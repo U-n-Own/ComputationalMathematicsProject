@@ -11,6 +11,8 @@
 \usepackage{sidenotes}
 \usepackage{longtable}
 \usepackage{makecell}
+\usepackage{biblatex}
+\addbibresource{main.bib}
 
 \lstdefinelanguage{Julia}%
   {morekeywords={abstract,break,case,catch,const,continue,do,else,elseif,%
@@ -60,9 +62,12 @@
 \newcommand{\arnoldi}{\texttt{Arnoldi}}
 
 \newtheorem{remark}{Remark}
+\newtheorem{claim}{Claim}
+\newtheorem{theo}{Theorem}
 
+\title{CMCS Project 27}
+\author{Vincenzo Gargano, Lorenzo Pace}
 \begin{document}
-
 %  \section*{Notation List}
 % 
 % \begin{longtable}{r|r}
@@ -89,9 +94,10 @@
 % 
 %  \newpage
 
- \section*{Notes}
- These notes shall serve as aid for the implementation, and will eventually be integrated into the report;
+\maketitle
 
+\tableofcontents
+\newpage
  \section{Problem Statement}
  \begin{framed}
  (P) is a sparse linear system of the form:
@@ -165,15 +171,15 @@ AQ_n = Q_{n+1} \hess_n \label{arnoldi_eq}
  \end{remark}
 
  \subsection{Simplifying the minimum problem}
- We can simplify the minimum problem to: $$\min_{z \in \reals} \|\hess_n z - e_1\|y\|\|$$
+ We can simplify the minimum problem to: $$\min_{z \in \reals^{n+1}} \|\hess_n z - e_1\|y\|\|$$
  \begin{proof}
  \begin{align}
-  \min_{x \in K_n(A, y)} \|A x - y\| &= \min_{z \in \reals} \|A Q_n z - y\| \tag{$q_i$s form basis of $K_n(A, y)$}\\
-  &= \min_{z \in \reals} \|Q_{n+1}\hess_n z - y\| \tag{by \eqref {arnoldi_eq}}\\
-  &= \min_{z \in \reals} \|Q_{n+1}^T(Q_{n+1}\hess_n z - y)\| \tag{$Q_{n+1}^T$ orthogonal}\\
-  &= \min_{z \in \reals} \|\hess_n z - Q_{n+1}^T y)\| \tag{$Q_{n+1}$ orthogonal}\\
-  &= \min_{z \in \reals} \|\hess_n z - Q_{n+1}^T q_1 \|y\|\| \tag{by Remark \ref{q1}}\\
-  &= \min_{z \in \reals} \|\hess_n z - e_1\|y\|\| \tag{$Q_{n+1}^T$ orthogonal}
+  \min_{x \in K_n(A, y)} \|A x - y\| &= \min_{z \in \reals^{n+1}} \|A Q_n z - y\| \tag{$q_i$s form basis of $K_n(A, y)$}\\
+  &= \min_{z \in \reals^{n+1}} \|Q_{n+1}\hess_n z - y\| \tag{by \eqref {arnoldi_eq}}\\
+  &= \min_{z \in \reals^{n+1}} \|Q_{n+1}^T(Q_{n+1}\hess_n z - y)\| \tag{$Q_{n+1}^T$ orthogonal}\\
+  &= \min_{z \in \reals^{n+1}} \|\hess_n z - Q_{n+1}^T y)\| \tag{$Q_{n+1}$ orthogonal}\\
+  &= \min_{z \in \reals^{n+1}} \|\hess_n z - Q_{n+1}^T q_1 \|y\|\| \tag{by Remark \ref{q1}}\\
+  &= \min_{z \in \reals^{n+1}} \|\hess_n z - e_1\|y\|\| \tag{$Q_{n+1}^T$ orthogonal}
  \end{align}
 
  \end{proof}
@@ -372,8 +378,8 @@ Recall that $R_{old}$ is an $n \times (n-1)$ upper triangular matrix, hence it h
   \newpage
   \subsection{Solving the minimum problem, given QR}
   Given the QR factorization of $\underbar H_n$, we can transform our minimum problem:
-  \[\boxed{\min_{z \in \reals} \|\hess_n z - e_1\|y\|\|} 
-  \text{ \quad into \quad }\boxed{\min_{z \in \reals} \|R_0 z - Q_0^T (e_1 \|y\|)\|}.\]
+  \[\boxed{\min_{z \in \reals^{n+1}} \|\hess_n z - e_1\|y\|\|}
+  \text{ \quad into \quad }\boxed{\min_{z \in \reals^{n+1}} \|R_0 z - Q_0^T (e_1 \|y\|)\|}.\]
   \begin{proof} Let $\underbar H_n = QR$, \quad $Q = [Q_0, Q_c]$, \quad $R = [R_0, 0]^T$.
   
   \begingroup
@@ -392,9 +398,234 @@ Recall that $R_{old}$ is an $n \times (n-1)$ upper triangular matrix, hence it h
   \end{proof}
 \noindent Once we have transformed the problem to this form, if $R_0$ is invertible (which is true iff the $\underbar H_n$ is full-rank), we have obtained a \emph{triangular system}, which is efficiently solved by backsubstitution.
 
+\subsection{Computational Complexity}
+
+\subsubsection{Time Complexity of Lanczos+QR}
+The algorithm consists of a for-loop of length $n$ (the number of Lanczos iterations). We go through the dominating parts of the $j$-th step of the loop:
+\begin{itemize}
+ \item The Lanczos iteration's complexity, both in its base and inductive cases, is dominated by the matrix-vector multiplication $w := Aq$, which has time complexity $O(m^2)$ ($m$ is the size of $A$).
+ \item The base case of the QR construction consists of a $2\times 2$ QR factorization, which can easily be considered as a constant-time operation.
+ \item The inductive case of the QR construction is dominated by the $O(j)$ cost of computing the new columns of the $Q$ and $R$ matrices.
+\end{itemize}
+This yields a time complexity of
+\[O \left(nm + \dfrac{n(n+1)}{2} \right) = O(nm + n^2)\]
+Taking in account the fact that we use a sparse matrix data type in the implementation, we can express the time complexity as follows:
+\[O(\texttt{nnz(A)} + n^2)\]
+\subsubsection{Time Complexity of Lanczos+QR}
+Let $\#D$ represent the length of $D$'s diagonal. We need to store:
+\begin{itemize}
+ \item The matrix (in sparse form): $O(\#D + 2\cdot \texttt{NNZ(E)})$
+ \item The Lanczos basis: $O(m \cdot n)$
+ \item $Q$ and $R$: $O(n^2)$
+\end{itemize}
+Hence the space complexity is the sum of the above complexities.
+
+\subsubsection{Time complexity of GMRES}
+
+Our implementation of GMRES consists of:
+\begin{itemize}
+ \item A Lanczos+QR computation $O(\texttt{nnz(A)} + n^2)$
+ \item Solving an $n\times n$ triangular system: $O(n^2)$
+\end{itemize}
+Hence the complexity is dominated by the Lanczos+QR computation $O(\texttt{nnz(A)} + n^2)$.
+
+\subsubsection{Space complexity of GMRES}
+Once again, the space complexity is dominated by that of Lanczos+QR, it is therefore:
+\[O(\#D + 2\cdot \texttt{NNZ(E)} + mn + n^2)\]
+
+\subsection{Stability}
+
+As remarked by prof. Poloni in e-mail correspondence, not much can be said about Lanczos's stability. We shall focus on the backward stability of the other two main components of the algorithm, namely QR factorization and backward substitution.
+
+\subsubsection{Background: Backward Stability}
+
+An algorithm is said to be \emph{backward stable} if the computed output $\widetilde y$ can be written as $\widetilde y = f(\widehat x)$, where:
+\[ \dfrac{\|\widehat x - x\|}{\|x\|} = O(u) \]
+where $\widehat x$ is a perturbed input $x + \Delta x$.
+
+\subsubsection{Backward Stability of QR factorization}
+
+First, we recall the following result:
+\begin{theo}[Backward stability of orthogonal transformations] \label{orthobs}
+If $Q \in \mathbb R^{m \times m}$ is orthogonal, and $B \in \mathbb R^{m \times n}$, then the computed version $\widetilde C$ of $C = QB$ is backward stable:
+\[ \widetilde C = Q\widehat B, \quad\quad \|\widehat B - B\| \leq O(u) \|B\| \]
+\end{theo}
+\noindent The proof is omitted. We can now prove the following:
+\begin{framed}
+\begin{claim}
+Let $A + \Delta_A$ be a perturbed version of the input matrix $A$. We compute:
+\[ \widetilde Q \widetilde R = \texttt{QR}(A + \Delta_A). \]
+The computed $\widetilde Q$ and $\widetilde R$ satisfy:
+ \[ \widetilde Q \widetilde R = A + \Delta \quad \text{ with  } \quad \|\Delta\| \leq O(u)\|A\|.\]
+\end{claim}
+\end{framed}
+
+\begin{proof}
+ Recall that:
+ \[ A_0 = A,\quad\quad A_{k} = Q_k\hdots Q_1 A,
+ \quad\quad k \in \{1..n\}\]
+Where the $Q_k$s are orthogonal matrices of the form:
+\[\begin{bmatrix}
+   I & 0\\
+   0 & H_k
+  \end{bmatrix}
+\]
+And $H_k$ is a Householder reflector matrix. We first show by induction that:
+\[ \widetilde A_k := \widetilde Q_k (\widetilde A_{k-1} + \Delta) \]
+is such that $\|\Delta\| \leq O(u)\|A\|$ and $\|\widetilde A_k\| \leq \|A\| + O(u) \|A\|$.
+\begin{itemize}
+ \item \textbf{Base case}\quad By Theorem \ref{orthobs}:
+ \[ \widetilde A_1 = \widetilde Q_1(A + \Delta_1), \quad\quad \|\Delta_1\| = O(u) \|A\|\]
+ Additionally:
+ \begin{align*}
+  \|\widetilde A_1\| &= \|\widetilde Q_1 (A + \Delta_1)\|\\
+  &=\|A + \Delta_1\| \tag{orthogonality}\\
+  &\leq \|A\| + O(u) \|A\| \tag{prop. of norms, above eqn.}
+ \end{align*}
+
+ \item \textbf{Inductive Case} \quad Let us assume:
+ \[ \widetilde A_{i} = \widetilde Q_i (\widetilde A_{i-1} + \Delta_i), \quad\quad \|\Delta_i\| \leq O(u)\|A\| \quad\quad \|\tilde A_i\| \leq \|A\| + O(u) \|A\|.\]
+ Then:
+ \[ \widetilde A_{i+1} = \widetilde Q_{i + 1} (\widetilde A_i  + \Delta_{i+1}) \]
+We thus have:
+\begin{align*}
+  \|\Delta_{i+1}\| &= O(u) \|(\widetilde A_i + \Delta_i)\|\tag{by Theorem \ref{orthobs}}\\
+  &\leq O(u) (\|\widetilde A_i\| + \|\Delta_i\|) \tag{prop. of norms}\\
+  &= O(u) (\|\widetilde A_i\| + O(u)\|A\|) \tag{Inductive Hp 1}\\
+  &\leq O(u) (\|A\| + O(u) \|A\| + O(u) \|A\|) \tag{Inductive Hp 2}\\
+  &= \|A\|O(u)
+\end{align*}
+And finally:
+\begin{align*}
+ \|\widetilde A_{i+1}\| &= \|\widetilde Q_{i + 1} (\widetilde A_i  + \Delta_{i+1})\|\\
+&=   \|\widetilde A_i  + \Delta_{i+1}\| \tag{Orthogonality}\\
+  &\leq \|\widetilde A_{i}\| + \|\Delta_{i+1}\| \tag{prop. of norms}\\
+  &\leq \|A\| + O(u)\|A\| + \|\Delta_{i+1}\| \tag{Inductive Hp 2}\\
+  &\leq \|A\| + O(u)\|A\| + \|A\|O(u) \tag{above inequality}\\
+  & = \|A\| + O(u) \|A\|
+\end{align*}
+
+\end{itemize}
+Now recall that $\tilde R = \tilde A_k$ for some $k$, and therefore, given:
+\[ \widetilde Q \widetilde R = A + \Delta \]
+we can conclude:
+\begin{align*}
+ \|\Delta\| &\leq O(u)\|A_k\| \tag{by Theorem \ref{orthobs} }\\
+ &\leq O(u) (\|A\| + O(u)\|A\|) \tag{as shown by induction}\\
+ &= O(u)\|A\|
+\end{align*}
+
+\end{proof}
+
+
+
+\subsubsection{Stability of backward substitution}
+...
+\newpage
+\section{GMRES with preconditioner}
+
+In this section we discuss how we implemented the algorithm using the following preconditioner: $$P = \begin{bmatrix}
+     D & 0\\
+     E & S
+    \end{bmatrix}$$
+    where is $S=ED^{-1}E^T$ or an approximation of it, obtained by replacing the smallest off-diagonal entries of $S$ with zeros. Since our matrix is symmetric, the preconditioned problem we want to solve can be either:
+    \[ PAP^T(P^{-T}x) = Py \]
+    or
+    \[ P^TAP(P^{-1}x) = P^Ty \]
+    In our implementation, we provide algorithms to solve both of these systems. As we will later discuss, the second system turned out to provide much more accurate results, but was generally less sparse, hence impacting the compute time.
+
+    \subsection{Implementation details}
+    \paragraph{Block computation} In order to save space, we never construct $P$ explicitly. What we do is exploit the block structure to obtain $PAP^T$ and $P^TAP$ directly:
+    \[
+     PAP^T = \begin{bmatrix}
+      D^3 & D^2E^T + DE^TS^T\\
+      (ED+SE)D & (ED+SE)E^T + EE^TS^T
+     \end{bmatrix}
+    \]
+
+    \[
+     P^TAP = \begin{bmatrix}
+      (D^2+E^TE)D + DE^TE & DE^TS\\
+      E^TED & 0
+     \end{bmatrix}
+    \]
+By precomputing the blocks, we obtain a relatively efficient algorithm.
+\paragraph{Approximation of $S$} Once $S$ is computed, we can remove all off-diagonal elements under some threshold using the following Julia code:
+\begin{lstlisting}
+     # set off-diagonal elements under some threshold to zero
+    if THRESHOLD_ZERO > 0
+        threshold = THRESHOLD_ZERO
+        mask = .!I(heightE) .& (abs.(S) .< threshold)
+        S[mask] .= 0
+    end
+\end{lstlisting}
+
+
 \newpage
 
+\section{Additional implementations}
+
+\subsection{Restarted versions of the algorithms}
+
+In addition to the GMRES implementation, we provided a \emph{higher-order function} that takes as input any GMRES implementation, and uses it to perform the \textbf{restarted GMRES} algorithm.\bigskip
+
+
+\paragraph{Reasons for using the restarted version} A common issue with GMRES is that it is a costly computational method that need to keep in memory
+ all the vectors of the basis $Q_n$ and the Hessenberg matrix $H_n$ (although, because our matrix is symmetric, we only keep $H_n$'s diagonal and subdiagonal). Additionally, the cost of orthogonalization grows with iterations [\sidenote{\color{red}Check also what are the computational cost}]
+ This can be a problem when the matrix $A$ is large thus requiring a large number of iterations to converge to the lucky breakdown.
+ Especially when the matrix is ill-conditioned, one way to mitigate those issues is to \emph{restart} the algorithm after a certain number of iterations. The restarted GMRES algorithm is as follows: \newline
+
+ \paragraph{Julia code for the Restarted algorithm}\,
+\begin{lstlisting}
+function RestartedGMRES(GMRES_Method, A, y, max_iter, restart, tol)
+
+    x = zeros(size(A)[2])
+
+    # Initial guess is initial r0
+    r = y - A * x
+    norm_r = norm(r)
+
+    iter = 0
+
+    while iter < max_iter && norm_r > tol
+
+      # Perform GMRES and get current solution
+      dx = GMRES_Method(A, y, restart)
+
+      x += dx
+      r = y - A * x
+      norm_r = norm(r)
+
+      iter += restart
+    end
+
+    if norm_r > tol
+      println("Did not converge")
+    end
+
+    return x
+
+\end{lstlisting}
+
+\paragraph{Correctness: restart invariant}
+ Let $r_i$ be the residual after restart $i$: $r_i = y-Ax_{i}$. We have the following:
+$$Ax_i = y - r_i$$
+  $$x' := \texttt{GMRES}(A,r_i) \implies Ax' = \widetilde r_i \approx r_i$$
+  Let $x_{i+1} = x_i + x'$, now:
+  \[A(x_{i+1}) = Ax_i + Ax' = y - \widetilde r_i + r_i \approx y\]
+This shows that, at each restart:
+\[A x_i \approx y.\]
+Indeed, we should ensure that, under some assumptions, the approximations grow in precision with each iteration, but we do not go into this: with the right parameter choice, we found experimentally that the method provides very good approximations of the solution in very brief time.
+
+\paragraph{Drawbacks of the method}
+
+A well known difficulty with the restarted GMRES algorithm is that it can stagnate when the matrix is not positive definite \cite{saad2003iterative}. Indeed, experimentally, we have noticed that choosing the wrong parameters (\texttt{restart} and tolerance) would yield stagnation. However, as evident from the experimental data, the restarted algorithm often delivered solutions orders of magnitude more fast and precise than the bare implementations.
+
+
+
 \section{Generating instances of the problem}
+
+\subsection{Min-Cost Flow}
 
 The problem arises from the KKT system of the convex quadratic separable Min-Cost Flow Problem. The problem is defined as follows:
 \begin{itemize}
@@ -436,7 +667,6 @@ Where:
            \end{bmatrix}
            \]
 Additionally, given the incidence matrix $\underline E$, we can write the constraint as simply $\underline E x = b$.
-\newpage
 \subsection{KKT System}
 From the above problem and equality constraint, we obtain the following system:
 \begin{align}
@@ -457,75 +687,25 @@ x\\ \mu
 In order to obtain an equivalent full-rank system, as suggested in the problem statement, we can remove one row from the incidence matrix.
 
 \subsection{Netgen dataset, and generating $D$}
-In order to obtain realistic instances to test our algorithms, we used the netgen \sidenote{\color{red}add citation} dataset. This provides graphs in the DIMACS format defined in [\sidenote{\color{red}add citation}], coming with the following information:
+In order to obtain realistic instances to test our algorithms, we used the netgen \cite{netgenwebsite} dataset. This provides graphs in the DIMACS format defined in \cite{dimacsminflow}, coming with the following information:
 \begin{itemize}
  \item Node flow of each vertex
  \item Source, target, capacity, and \emph{linear} cost of each edge.
 \end{itemize}
-The main issue with this dataset is that, indeed, the per-edge costs are meant to be used as linear costs, whereas we need to adapt them to be used in a quadratic cost setting. \medskip
+The main issue with this dataset is that, indeed, it only provides linear costs.
 
-\noindent Luckily, Frangioni et al. [\sidenote{\color{red}add citation}] propose a procedure for generating realistic quadratic costs given the linear costs. Such procedure consists in, given linear costs $\{b_{ij} \mid (i, j) \in A\}$, uniformly generating the quadratic costs $c_{ij}$ in an interval such as $[3b_{ij}, 10b_{ij} ]$ or $[100b_{ij}, 1000b_{ij} ]$.
+\paragraph{Generating $D$} Frangioni et al. \cite{frangioni2011projected} propose a procedure for generating realistic quadratic costs. Their approach is to generate the costs uniformly in $[n, an]$, where $n$ is the size of the matrix, and $a$ is an integer number. The values for $a$ provided in the paper we reference are 10, 20 and 30.
+
+\paragraph{Other ways to construct $D$} In order to further explore the performance of our algorithm, we will additionally test with other versions of the matrix $D$, namely:
+\begin{itemize}
+ \item Diagonal with all ones
+ \item Diagonal with entries uniformly distributed in $[0,1]$
+ \item ...?
+\end{itemize}
+
+\section{Experimental Results}
 
 \newpage
-
-\section{Restarted GMRES}
-
-A common issue with GMRES is that it is a costly computational method that need to keep in memory
- all the vectors of the basis $Q_n$ and the Hessenberg matrix $H_n$. Also the cost of orthogonalization grows with iterations [\sidenote{\color{red}Check also what are the computational cost}]
- This can be a problem when the matrix $A$ is large thus requiring a large number of iterations to converge to the lucky breakdown.
- Especially when the matrix is ill-conditioned, one way to mitigate those issues is to \emph{restart} the algorithm after a certain number of iterations. The restarted GMRES algorithm is as follows: \newline
-
-\begin{lstlisting}
-function RestartedGMRES(GMRES_Method, A, y, max_iter, restart, tol)
-    
-    x = zeros(size(A)[2])
-
-    # Initial guess is initial r0
-    r = y - A * x
-    norm_r = norm(r)
-
-    iter = 0
-
-    while iter < max_iter && norm_r > tol
-
-      # Perform GMRES and get current solution
-      dx = GMRES_Method(A, y, restart)
-
-      x += dx
-      r = y - A * x
-      norm_r = norm(r)
-
-      iter += restart
-    end
-
-    if norm_r > tol
-      println("Did not converge")
-    end
-
-    return x
-
-\end{lstlisting}
-
-%We got the idea for this algorithm from the book \emph{Iterative Methods for Sparse Linear Systems} by Yousef Saad.
-This method is particularly useful but has some drawbacks, 
- for example, the convergence of the restarted GMRES is not guaranteed, 
- and the number of iterations is not predictable.
- The choice of the restart parameter is crucial, and it is usually chosen empirically.
- % make some space
- \vspace{0.3cm}
-
- Let $r_0$ be the initial residual $r_0 = y-Ax_{0}$, and $r_1$ the residual at the $1$-st restart.
- Then we know that $r_0 = y$ and $r_1 = y - Ax_1$. Where $x_1 = x_0 + dx$ is the solution after the first restart.
- We can see that:
- \begin{align}
-  r_0 = y - Ax_0 = y \\
-  Ax_1 \approx r_0 \\
-  A(x_0 + x_1) = Ax_0 + Ax_1 = y - r_0 + \tilde{r_0} \approx y
- \end{align}
- 
- So effectively, the restarted GMRES is solving the system $Ax = y$ with a sightly different $y$ at each restart.
-
- \subsection{Restart properties and issues}
-   %todo 
+\printbibliography %Prints bibliography
 
 \end{document}
