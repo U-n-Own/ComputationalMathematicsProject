@@ -411,7 +411,7 @@ This yields a time complexity of
 \[O \left(nm + \dfrac{n(n+1)}{2} \right) = O(nm + n^2)\]
 Taking in account the fact that we use a sparse matrix data type in the implementation, we can express the time complexity as follows:
 \[O(\texttt{nnz(A)} + n^2)\]
-\subsubsection{Time Complexity of Lanczos+QR}
+\subsubsection{Space Complexity of Lanczos+QR}
 Let $\#D$ represent the length of $D$'s diagonal. We need to store:
 \begin{itemize}
  \item The matrix (in sparse form): $O(\#D + 2\cdot \texttt{NNZ(E)})$
