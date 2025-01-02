@@ -12,6 +12,8 @@
 \usepackage{longtable}
 \usepackage{makecell}
 \usepackage{biblatex}
+\usepackage{graphicx}
+\usepackage{float}
 \addbibresource{main.bib}
 
 \lstdefinelanguage{Julia}%
@@ -704,8 +706,111 @@ The main issue with this dataset is that, indeed, it only provides linear costs.
  \item Diagonal with entries uniformly distributed in $[0,1]$
  \item ...?
 \end{itemize}
-
+\newpage
 \section{Experimental Results}
+
+\subsection{Comparison in performance for different $D$}
+
+\begin{figure}[H]
+ \begin{minipage}{.45\textwidth}
+ \begin{center}
+  \includegraphics[scale = .18]{./plots/all ones}
+ \end{center}
+
+ \end{minipage}
+  \begin{minipage}{.45\textwidth}
+ \begin{center}
+  \includegraphics[scale = .18]{./plots/uniform}
+ \end{center}
+ \end{minipage}
+
+ \vspace{1cm}
+
+  \begin{minipage}{.45\textwidth}
+ \begin{center}
+\boxed{\text{FROM DATA 1}}
+ \end{center}
+
+ \end{minipage}
+  \begin{minipage}{.45\textwidth}
+ \begin{center}
+\boxed{\text{FROM DATA 2}}
+ \end{center}
+
+ \end{minipage}
+ \vspace{1cm}
+
+ \caption{Residuals vs iterations for different constructions of $D$.}
+\end{figure}
+
+\subsection{Comparison between the precond. and non-precond. systems}
+
+We proposed two ways to use the preconditioner, preserving the symmetry:
+\[ PAP^T(P^{-T}x) = Py \]
+and
+\[ P^TAP(P^{-1}x) = P^Ty \]
+We analyse the impact of both.
+
+\subsubsection{$PAP^T$ form}
+
+\begin{figure}[H]
+  \begin{minipage}{.45\textwidth}
+ \begin{center}
+\boxed{\text{ALL ONES}}
+ \end{center}
+
+ \end{minipage}
+  \begin{minipage}{.45\textwidth}
+ \begin{center}
+\boxed{\text{UNIFORM}}
+ \end{center}
+
+ \end{minipage}
+ \vspace{1cm}
+
+ \caption{Comparison between preconditioned and non-preconditioned system in $PAP^T$ form.}
+\end{figure}
+
+\subsubsection{$P^TAP$ form}
+
+\begin{figure}[H]
+  \begin{minipage}{.45\textwidth}
+ \begin{center}
+\includegraphics[scale = .18]{./plots/precond all ones}
+ \end{center}
+
+ \end{minipage}
+  \begin{minipage}{.45\textwidth}
+ \begin{center}
+\includegraphics[scale = .18]{./plots/precond uniform}
+ \end{center}
+
+ \end{minipage}
+ \vspace{1cm}
+
+
+ \caption{Comparison between preconditioned and non-preconditioned system in $P^TAP$ form.}
+\end{figure}
+From the experimental results, it is apparent that the preconditioned system converges to a less accurate result than the non-preconditioned one. This is not what we expected, but it would seem that the proposed preconditioner is not adequate for this application.\smallskip
+
+\noindent In order to investigate this behaviour, we compute the matrix conditioning for the preconditioned and non-preconditioned matrices:
+\begin{center}
+
+\begin{tabular}{|l|c|c|}
+\hline
+& \textbf{Precond} & \textbf {Non-precond}\\
+\hline
+\textbf{All ones} & & \\
+\textbf{Uniform in $[0,1]$} & & \\
+\textbf{Data 1} & &\\
+\textbf{Data 2} & &\\
+\hline
+\end{tabular}
+
+\end{center}
+
+
+\subsection{Comparison between GMRES and Restarted GMRES}
 
 \newpage
 \printbibliography %Prints bibliography
