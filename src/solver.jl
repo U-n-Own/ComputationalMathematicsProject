@@ -8,7 +8,7 @@ using Plots
 using LightGraphs
 
 include("GMRES.jl")
-
+include("plots.jl")
 include("generate_matrix.jl")
 
 # We will use GMRES and could use SparseArrays and construct the KKT system
@@ -46,8 +46,8 @@ println("density of E_bar: ", nnz(SparseMatrixCSC(E_bar))/(size(E_bar)[1] * size
 # --------------- Construct the augmented system:
 
 #D, E, A = gen_A_from_data(edge_data[:, 5], E_bar)
-D, E, A = gen_A_all_ones(E_bar)
-# D, E, A = gen_A_uniform(E_bar)
+#D, E, A = gen_A_all_ones(E_bar)
+D, E, A = gen_A_uniform(E_bar)
 
 
 println("matrix A has rank: ", rank(A))
@@ -59,6 +59,19 @@ y = (gen_y_from_data(flows, edge_data[:, 5]))
 
 n = size(A)[1]
 
+### EXPERIMENTS CODE ###
+# TODO For now the restart parameters is directyl inside the GMRES_Experiments we could give it as a parameter
+x, plot_residual, plot_residual_time = GMRES_Experiments(GMRES_IncrementalQR, A, D, E, y, n, false, false)
+
+# save plot_residual and plot_residual_time
+savefig(plot_residual, "plot_residual.png")
+savefig(plot_residual_time, "plot_residual_time.png")
+
+print("Residual final: ", norm(A * x - y))
+
+
+### DEBUGGING CODE ###
+#= 
 println("now solving non-precond problem:")
 
 @time x = GMRES_IncrementalQR(A, y, n)
@@ -77,4 +90,4 @@ println(norm(A * x - y))
 println("now solving non-precond problem with restarted algo:")
 
 @time x = GMRES_Restarted(GMRES_IncrementalQR_precond, A, y, (D, SparseMatrixCSC(E)), n, 2000, 10E-10)
-println(norm(A * x - y))
+println(norm(A * x - y)) =#
