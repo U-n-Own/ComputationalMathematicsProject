@@ -435,7 +435,14 @@ Once again, the space complexity is dominated by that of Lanczos+QR, it is there
 
 \subsection{Stability}
 
-As remarked by prof. Poloni in e-mail correspondence, not much can be said about Lanczos's stability. We shall focus on the backward stability of the other two main components of the algorithm, namely QR factorization and backward substitution.
+The three components of our method are the Lanczos method, the QR factorization and the back substitution used to solve the triangular linear system resulting from the QR factorization.
+
+\begin{itemize}
+ \item \textbf{Lanczos} \quad As remarked in \cite{trefethen2022numerical}, \emph{``no straightforward theorem is known to the effect that the Lanczos iteration is stable in the sense defined in this book''}.
+ \item \textbf{QR} \quad As for the QR factorization, we provide a proof of its backward stability.
+ \item \textbf{Back substitution}\quad A proof of the backward stability of back substitution can be found in \cite{higham2002accuracy}.
+\end{itemize}
+
 
 \subsubsection{Background: Backward Stability}
 
@@ -475,21 +482,21 @@ And $H_k$ is a Householder reflector matrix. We first show by induction that:
 is such that $\|\Delta\| \leq O(u)\|A\|$ and $\|\widetilde A_k\| \leq \|A\| + O(u) \|A\|$.
 \begin{itemize}
  \item \textbf{Base case}\quad By Theorem \ref{orthobs}:
- \[ \widetilde A_1 = \widetilde Q_1(A + \Delta_1), \quad\quad \|\Delta_1\| = O(u) \|A\|\]
+ \[ \widetilde A_1 = \widetilde Q_1(A + \Delta_1), \quad\quad \|\Delta_1\| \leq O(u) \|A\|\]
  Additionally:
  \begin{align*}
   \|\widetilde A_1\| &= \|\widetilde Q_1 (A + \Delta_1)\|\\
   &=\|A + \Delta_1\| \tag{orthogonality}\\
-  &\leq \|A\| + O(u) \|A\| \tag{prop. of norms, above eqn.}
+  &\leq \|A\| + O(u) \|A\| \tag{prop. of norms, above ineq.}
  \end{align*}
 
- \item \textbf{Inductive Case} \quad Let us assume:
- \[ \widetilde A_{i} = \widetilde Q_i (\widetilde A_{i-1} + \Delta_i), \quad\quad \|\Delta_i\| \leq O(u)\|A\| \quad\quad \|\tilde A_i\| \leq \|A\| + O(u) \|A\|.\]
+ \item \textbf{Inductive Case} \quad Let us assume that $\widetilde A_{i} = \widetilde Q_i (\widetilde A_{i-1} + \Delta_i)$, with:
+ \[ \text{(Hp 1)} \quad\|\Delta_i\| \leq O(u)\|A\| \quad\quad \text{(Hp 2)} \quad \|\tilde A_i\| \leq \|A\| + O(u) \|A\|.\]
  Then:
  \[ \widetilde A_{i+1} = \widetilde Q_{i + 1} (\widetilde A_i  + \Delta_{i+1}) \]
 We thus have:
 \begin{align*}
-  \|\Delta_{i+1}\| &= O(u) \|(\widetilde A_i + \Delta_i)\|\tag{by Theorem \ref{orthobs}}\\
+  \|\Delta_{i+1}\| &\leq O(u) \|(\widetilde A_i + \Delta_i)\|\tag{by Theorem \ref{orthobs}}\\
   &\leq O(u) (\|\widetilde A_i\| + \|\Delta_i\|) \tag{prop. of norms}\\
   &= O(u) (\|\widetilde A_i\| + O(u)\|A\|) \tag{Inductive Hp 1}\\
   &\leq O(u) (\|A\| + O(u) \|A\| + O(u) \|A\|) \tag{Inductive Hp 2}\\
@@ -506,7 +513,7 @@ And finally:
 \end{align*}
 
 \end{itemize}
-Now recall that $\tilde R = \tilde A_k$ for some $k$, and therefore, given:
+Now recall that $\widetilde R = \widetilde A_k$ for some $k$, and therefore, given:
 \[ \widetilde Q \widetilde R = A + \Delta \]
 we can conclude:
 \begin{align*}
@@ -517,10 +524,6 @@ we can conclude:
 
 \end{proof}
 
-
-
-\subsubsection{Stability of backward substitution}
-...
 \newpage
 \section{GMRES with preconditioner}
 
@@ -559,7 +562,9 @@ By precomputing the blocks, we obtain a relatively efficient algorithm.
         S[mask] .= 0
     end
 \end{lstlisting}
+\subsubsection{Complexity and stability}
 
+The results for the computational complexity and stability of the algorithm remain unchanged from those stated previously, for the algorithm without preconditioning. The one difference that had an impact on performance was the increased density of the preconditioned matrices, which makes it so that the preconditioned version of the algorithm takes longer to compute.
 
 \newpage
 
@@ -567,15 +572,12 @@ By precomputing the blocks, we obtain a relatively efficient algorithm.
 
 \subsection{Restarted versions of the algorithms}
 
-In addition to the GMRES implementation, we provided a \emph{higher-order function} that takes as input any GMRES implementation, and uses it to perform the \textbf{restarted GMRES} algorithm.\bigskip
+In addition to the GMRES implementation, we provided a \emph{higher-order function} that takes as input any GMRES implementation, and uses it to perform the \textbf{restarted GMRES} algorithm, proposed as an exercise in chapter 35 of \cite{trefethen2022numerical} and further discussed in \cite{saad2003iterative}.
 
+\paragraph{Reasons for using the restarted version}
 
-\paragraph{Reasons for using the restarted version} A common issue with GMRES is that it is a costly computational method that need to keep in memory
- all the vectors of the basis $Q_n$ and the Hessenberg matrix $H_n$ (although, because our matrix is symmetric, we only keep $H_n$'s diagonal and subdiagonal). Additionally, the cost of orthogonalization grows with iterations [\sidenote{\color{red}Check also what are the computational cost}]
- This can be a problem when the matrix $A$ is large thus requiring a large number of iterations to converge to the lucky breakdown.
- Especially when the matrix is ill-conditioned, one way to mitigate those issues is to \emph{restart} the algorithm after a certain number of iterations. The restarted GMRES algorithm is as follows: \newline
+For larger values of $n$, the cost of GMRES in operations and storage may be prohibitive. This is because, as seen before, the algorithm is quadratic both in time and in space. One way to mitigate these issues is to \emph{restart} the algorithm after a certain number of iterations. The restarted GMRES algorithm, as implemented in Julia, is as follows:
 
- \paragraph{Julia code for the Restarted algorithm}\,
 \begin{lstlisting}
 function RestartedGMRES(GMRES_Method, A, y, max_iter, restart, tol)
 
