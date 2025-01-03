@@ -10,16 +10,7 @@ include("lanczos_qr.jl")
 # Random.seed!(42)
 
 """
-Select what form to use for preconditioned matrix:
-    P A P ' is:
-
-        [D*D*D              D*D*E' + D*E'*S' ;
-        (E*D + S*E)*D       (E*D + S*E) * E' + E*E'*S']
-
-    P' A P is:
-
-        [(D*D+E'*E)*D + D*E'*E      D'*E'*S ;
-        S'*E*D                      zeros(heightE,heightE)]
+Select what form to use for preconditioned matrix.
 
 """
 
@@ -29,11 +20,34 @@ const PRECOND = "PAPT"
 # currently not used
 const THRESHOLD_ZERO = 0
 
+# P = [sqrt D  0 ; 0 R^-T]
+
+# pass Uinv instead of UinvT to use this to multiply by P'
+function mult_by_P(v, sqrtD, Uinv)
+    sizeD = size(sqrtD)[1]
+    sizeP = sizeD + size(Uinv)[1]
+
+    bu = v[1 : sizeD]
+    bb = v[sizeD + 1 : sizeP]
+    v = [sqrtD * bu ; Uinv' * bb]
+
+    return v
+end
+
+function mult_by_PT(v, sqrtD, Uinv)
+    return mult_by_P(v, sqrtD, Uinv')
+end
+
+
+# JUST FOR TESTING
 function LanczosQRPrecond_using_lanczosqr(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
     sizeA = size(D)[1] + size(E)[1]
     sizeD = size(D)[1]
     heightE = size(E)[1]
     S = E * inv(D) * E'
+    U = (cholesky(Matrix(S)).U)       # U'U = S
+    Uinv = SparseMatrixCSC(inv(U))
+    sqrtD = inv(sqrt(D))
 
     # set off-diagonal elements under some threshold to zero
     if THRESHOLD_ZERO > 0
@@ -43,37 +57,30 @@ function LanczosQRPrecond_using_lanczosqr(D::Diagonal, E :: SparseMatrixCSC, y::
     end
 
     # construct matrix and vector
-    if PRECOND == "PAPT"
-        PAPT = SparseMatrixCSC([D*D*D D*D*E' + D*E'*S' ; (E*D + S*E)*D (E*D + S*E) * E' + E*E'*S'])
-        yu = y[1 : sizeD]
-        yb = y[sizeD + 1 : sizeA]
-        Py = SparseVector([D * yu ; E * yu + S * yb])
-        return LanczosQR(PAPT, Py, n)
-    else
-        PTAP = SparseMatrixCSC([(D*D+E'*E)*D + D*E'*E D'*E'*S ; S'*E*D zeros(heightE,heightE)])
-        yu = y[1 : sizeD]
-        yb = y[sizeD + 1 : sizeA]
-        PTy = SparseVector([D * yu + E' * yb ; S' * yb])
-        return LanczosQR(PTAP, PTy, n)
-    end
+    P = [sqrtD zeros(sizeD, heightE) ; zeros(heightE, sizeD) Uinv']
+    A = [D E' ;
+         E zeros(size(E, 1), size(E, 1))]
 
+    PAPT = P * A * P'
 
+    Py = P * y
+    return LanczosQR(PAPT, Py, n)
 end
 
-# TODO try to optimize this
+
 function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
     """
     Builds QR factorization of H while performing Lanczos
     """     
     
-    alpha = zeros(1,n)     # diagonal of H
-    beta = zeros(1,n)    # subdiagonal of H (= superdiagonal of H because symmetric)
+    alpha = zeros(1,n)      # diagonal of H
+    beta = zeros(1,n)       # subdiagonal of H (= superdiagonal of H because symmetric)
     
     sizeA = size(D)[1] + size(E)[1]
     sizeD = size(D)[1]
     heightE = size(E)[1]
 
-    L = zeros(sizeA, n)    # Lanczos Basis
+    L = zeros(sizeA, n)     # Lanczos Basis
     w = zeros(sizeA)
     
     Q = zeros(n+1, n+1)
@@ -81,41 +88,18 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
     
     S = E * inv(D) * E'     # inv should be efficient (linear) because D is diagonal
 
-
-    # set off-diagonal elements under some threshold to zero
+     # set off-diagonal elements under some threshold to zero
     if THRESHOLD_ZERO > 0
         threshold = THRESHOLD_ZERO
         mask = .!I(heightE) .& (abs.(S) .< threshold)
         S[mask] .= 0
     end
 
-    # These are only computed once, and only referenced in the computation
-    Eᵀ = E'
-    @time begin
-    if PRECOND == "PAPT"
-        PAPTul = (D.^3)
-        PAPTur = SparseMatrixCSC(D.^2*Eᵀ + D*Eᵀ*S')
-        PAPTbl = SparseMatrixCSC((E*D + S*E)*D)
-        PAPTbr = SparseMatrixCSC((E*D + S*E) * Eᵀ + E*Eᵀ*S')
-    else
-        PTAPul = SparseMatrixCSC((D.^2+Eᵀ*E)*D + D*Eᵀ*E)
-#         display(SparseMatrixCSC(PTAPul))
-        PTAPur = SparseMatrixCSC(D*Eᵀ*S)
-#         display(SparseMatrixCSC(PTAPur))
-        PTAPbl = SparseMatrixCSC(S'*E*D)
-#         display(SparseMatrixCSC(PTAPbl))
-        # bottom right is zeros
-    end
-    end
+    U = (cholesky(Matrix(S)).U)       # U'U = S
+    Uinv = SparseMatrixCSC(inv(U))
+    sqrtD = inv(sqrt.(D))
 
-    yu = y[1 : sizeD]
-    yb = y[sizeD + 1 : sizeA]
-
-    if PRECOND == "PAPT"
-        y = [D * yu ; E * yu + S * yb]      # y = P * y
-    else
-        y = [D * yu + E' * yb ; S' * yb]    # y = P' * y
-    end
+    y = mult_by_P(y, sqrtD, Uinv)
 
     # base case + n * (inductive case)
     # let A be m*m
@@ -134,18 +118,10 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
             q = y / norm(y)
             L[:, 1] = q             # O(m)
 
-            qu = q[1 : sizeD]
-            qb = q[sizeD + 1 : sizeA]
+            w = mult_by_PT(q, sqrtD, Uinv)
+            w = A * w
+            w = mult_by_P(w, sqrtD, Uinv)
 
-            # compute (PAP') q without constructing P
-
-            if PRECOND == "PAPT"
-                w[1:sizeD] = PAPTul * qu + PAPTur * qb # TODO analyze complexity
-                w[sizeD + 1 : sizeA] = PAPTbl * qu + PAPTbr * qb
-            else
-                w[1:sizeD] = PTAPul * qu + PTAPur * qb
-                w[sizeD + 1 : sizeA] = PTAPbl * qu
-            end
             alpha[1] = w' * q       # O(m)
             w = w - alpha[1] * q    # O(m)
             beta[1] = norm(w)       # O(m)
@@ -154,17 +130,10 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
             q = w / beta[j-1]       # O(m)
             L[:, j] = q             # O(m)
 
-            qu = q[1 : sizeD]
-            qb = q[sizeD + 1 : sizeA]
+            w = mult_by_PT(q, sqrtD, Uinv)
+            w = A * w
+            w = mult_by_P(w, sqrtD, Uinv)
 
-            # compute (PAP') q without constructing P
-            if PRECOND == "PAPT"
-                w[1:sizeD] = PAPTul * qu + PAPTur * qb # TODO analyze complexity
-                w[sizeD + 1 : sizeA] = PAPTbl * qu + PAPTbr * qb
-            else
-                w[1:sizeD] = PTAPul * qu + PTAPur * qb
-                w[sizeD + 1 : sizeA] = PTAPbl * qu
-            end
             alpha[j] = w' * q       # O(m)
             w = w - alpha[j] * q - beta[j-1] * L[:, j-1]        # O(m)
 
@@ -174,13 +143,13 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
         begin
 
         # QR factorization
-        if j == 1                   
+        if j == 1
             H1 = reshape([alpha[1] ; beta[1]], 2,1)     # O(1)
             Q[1:2, 1:2], R[1:2, 1] = QR_fact(H1)        # O(1)
 
         else
             # last column of R:
-            c = beta[j-1] * Q[j-1, 1:j]' + alpha[j] * Q[j, 1:j]' # O(j)   (transpose does not impact on complexity)
+            c = beta[j-1] * Q[j-1, 1:j]' + alpha[j] * Q[j, 1:j]' # O(j)   (transpose does not impact on complexity(???))
             x = [c[j]; beta[j]]     # O(1)
             y = [norm(x), 0]        # O(1)
             v = x - y               # O(1)
@@ -190,28 +159,28 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
 
             Q[j+1, j+1] = 1.0
             newcols = zeros(j+1, 2) # O(j) Keeping this here is better for performance somehow
-            
+
             # O(j)
             for i in 1:j+1
                 # Compute Q_old * O without constructing O
                 # Can compute Q_old * O instead of Q_old * O' because O is sym.
-                
+
                 newcols[i, 1]     = Q[i, j] * Hrefl[1,1] + Q[i, j+1] * Hrefl[2,1]  # O(1)
                 newcols[i, 2]     = Q[i, j] * Hrefl[1,2] + Q[i, j+1] * Hrefl[2,2]  # O(1)
             end
-            
+
             @views Q[1:j+1, j:j+1] .= newcols[1:j+1, :]   #O(j)     without using .= and views this took way too long
-            
-            
+
+
             if beta[j] < 1e-13
                 println("Breakdown");
-                return (L, alpha, beta, Q, R)
+                return (L[:, 1:j], alpha, beta, Q[1:j+1, 1:j+1], R[1:j+1, 1:j])
             end
-            
+
         end
         end
 
-        
+
     end
     return (L, alpha, beta, Q, R)
 

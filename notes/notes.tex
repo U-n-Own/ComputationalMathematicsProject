@@ -608,7 +608,7 @@ function RestartedGMRES(GMRES_Method, A, y, max_iter, restart, tol)
     end
 
     return x
-
+end
 \end{lstlisting}
 
 \paragraph{Correctness: restart invariant}
@@ -698,18 +698,27 @@ In order to obtain realistic instances to test our algorithms, we used the netge
 \end{itemize}
 The main issue with this dataset is that, indeed, it only provides linear costs.
 
-\paragraph{Generating $D$} Frangioni et al. \cite{frangioni2011projected} propose a procedure for generating realistic quadratic costs. Their approach is to generate the costs uniformly in $[n, an]$, where $n$ is the size of the matrix, and $a$ is an integer number. The values for $a$ provided in the paper we reference are 10, 20 and 30.
+\paragraph{Generating $D$} Frangioni et al. \cite{frangioni2011projected} propose a procedure for generating realistic quadratic costs. Their approach is to generate the costs uniformly in $[ac_{ij}, bc_{ij}]$, where $c_{ij}$ are the linear costs and $a,b$ are integer numbers. The interval considered in the paper was $[3c_{ij}, 10c_{ij}]$.
 
 \paragraph{Other ways to construct $D$} In order to further explore the performance of our algorithm, we will additionally test with other versions of the matrix $D$, namely:
 \begin{itemize}
  \item Diagonal with all ones
  \item Diagonal with entries uniformly distributed in $[0,1]$
- \item ...?
 \end{itemize}
 \newpage
 \section{Experimental Results}
 
+The following experimental results refer to a 9000$\times$9000 matrix, and were ran on a laptop with a \emph{13th Gen Intel(R) Core(TM) i5-1335U} processor, and 16 GB of RAM.
+
 \subsection{Comparison in performance for different $D$}
+
+ As outlined in Figure \ref{fig:Dcompare}, we obtained the following results:
+ \begin{itemize}
+  \item With $D = I$, the algorithm reaches convergence to $~10^{-10}$ in fewer than 200 steps
+  \item With the uniform distribution, the algorithm settles on $~10^{-8}$ in almost 1500 steps.
+  \item The matrix with the generated quadratic costs is quite ill-conditioned, with a condition number of $1.347 \cdot 10^{11}$. Therefore, the algorithm does not quite converge at all.
+ \end{itemize}
+
 
 \begin{figure}[H]
  \begin{minipage}{.45\textwidth}
@@ -724,23 +733,12 @@ The main issue with this dataset is that, indeed, it only provides linear costs.
  \end{center}
  \end{minipage}
 
- \vspace{1cm}
 
-  \begin{minipage}{.45\textwidth}
  \begin{center}
-\boxed{\text{FROM DATA 1}}
+  \includegraphics[scale = .18]{./plots/generated}
  \end{center}
-
- \end{minipage}
-  \begin{minipage}{.45\textwidth}
- \begin{center}
-\boxed{\text{FROM DATA 2}}
- \end{center}
-
- \end{minipage}
- \vspace{1cm}
-
  \caption{Residuals vs iterations for different constructions of $D$.}
+\label{fig:Dcompare}
 \end{figure}
 
 \subsection{Comparison between the precond. and non-precond. systems}
@@ -749,31 +747,56 @@ We proposed two ways to use the preconditioner, preserving the symmetry:
 \[ PAP^T(P^{-T}x) = Py \]
 and
 \[ P^TAP(P^{-1}x) = P^Ty \]
-We analyse the impact of both.
+We analyse the impact of both. In Figures \ref{fig:papt} and \ref{fig:ptap}, we show how:
+\begin{itemize}
+ \item For the matrix with $D = I$, the preconditioned system in $P^TAP$ form is solved with slightly better precision than the $PAP^T$ one. Nonetheless, both preconditioned methods achieve much worse precision than the non-preconditioned ones.
+ \item For the matrix with uniformly distributed diagonal elements, the preconditioned method fails to converge in both cases.
+  \item Similarly, with the generated quadratic costs, the residual stagnates on a very high value, without reaching an acceptable value.
+\end{itemize}
 
-\subsubsection{$PAP^T$ form}
 
-\begin{figure}[H]
+
+\noindent From these experimental results, it is apparent that the preconditioned system converges to a less accurate result than the non-preconditioned one. This is not what we expected, but it would seem that the proposed preconditioner is not adequate for this application.\smallskip
+
+\noindent In order to investigate this behaviour, we compute the matrix conditioning for the preconditioned and non-preconditioned matrices:
+\begin{center}
+{ \renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|l|c|c|c|}
+\hline
+& \textbf{Non-precond.} & \textbf {$PAP^T$} & \textbf{$P^TAP$}\\
+\hline
+\textbf{All ones} & $7.104 \cdot 10^{3}$  & $3.432 \cdot 10^{12}$ & $3.303 \cdot 10^{11}$\\
+\textbf{Uniform in $[0,1]$} & $2.74 \cdot 10^{3}$ & $1.918 \cdot 10^{14}$ & $1.182 \cdot 10^{13}$\\
+\textbf{Generated Quadratic} & $1.347 \cdot 10^{11}$ & $6.496 \cdot 10^{25}$ & $1.041 \cdot 10^{29}$\\
+\hline
+\end{tabular}
+}
+\end{center}
+Indeed, we observe that the preconditioned matrices exhibit higher condition numbers than the non-preconditioned ones. This is consistent with the preconditioner not being adequate.
+
+\begin{figure}
   \begin{minipage}{.45\textwidth}
  \begin{center}
-\boxed{\text{ALL ONES}}
+\includegraphics[scale = .18]{./plots/precond all ones papt}
  \end{center}
 
  \end{minipage}
   \begin{minipage}{.45\textwidth}
  \begin{center}
-\boxed{\text{UNIFORM}}
+\includegraphics[scale = .18]{./plots/precond uniform papt}
  \end{center}
 
  \end{minipage}
- \vspace{1cm}
+
+  \begin{center}
+\includegraphics[scale = .18]{./plots/precond generated papt}
+ \end{center}
 
  \caption{Comparison between preconditioned and non-preconditioned system in $PAP^T$ form.}
+ \label{fig:papt}
 \end{figure}
 
-\subsubsection{$P^TAP$ form}
-
-\begin{figure}[H]
+\begin{figure}
   \begin{minipage}{.45\textwidth}
  \begin{center}
 \includegraphics[scale = .18]{./plots/precond all ones}
@@ -786,33 +809,17 @@ We analyse the impact of both.
  \end{center}
 
  \end{minipage}
- \vspace{1cm}
-
+  \begin{center}
+\includegraphics[scale = .18]{./plots/precond generated}
+ \end{center}
 
  \caption{Comparison between preconditioned and non-preconditioned system in $P^TAP$ form.}
+ \label{fig:ptap}
 \end{figure}
-From the experimental results, it is apparent that the preconditioned system converges to a less accurate result than the non-preconditioned one. This is not what we expected, but it would seem that the proposed preconditioner is not adequate for this application.\smallskip
-
-\noindent In order to investigate this behaviour, we compute the matrix conditioning for the preconditioned and non-preconditioned matrices:
-\begin{center}
-
-\begin{tabular}{|l|c|c|}
-\hline
-& \textbf{Precond} & \textbf {Non-precond}\\
-\hline
-\textbf{All ones} & & \\
-\textbf{Uniform in $[0,1]$} & & \\
-\textbf{Data 1} & &\\
-\textbf{Data 2} & &\\
-\hline
-\end{tabular}
-
-\end{center}
-
 
 \subsection{Comparison between GMRES and Restarted GMRES}
+[{\color{red} TODO}]
 
-\newpage
 \printbibliography %Prints bibliography
 
 \end{document}

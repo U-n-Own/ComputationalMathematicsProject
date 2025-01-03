@@ -12,7 +12,7 @@ using ExponentialUtilities
 include("Lanczos.jl")
 include("QR.jl")
 include("lanczos_qr.jl")
-include("lanczos_qr_precond.jl")
+include("lanczos_qr_precond_new.jl")
 
 
 # Random.seed!(42)
@@ -74,6 +74,7 @@ function GMRES_IncrementalQR_precond(D::Diagonal, E::SparseMatrixCSC, y::Vector,
 
     sizeD = size(D)[1]
     sizeA = size(D)[1] + size(E)[1]
+    heightE = size(E)[1]
     S = E * inv(D) * E'
 
     # set off-diagonal elements of S under some threshold to zero
@@ -85,33 +86,28 @@ function GMRES_IncrementalQR_precond(D::Diagonal, E::SparseMatrixCSC, y::Vector,
 
     L, α, β, Q, R = LanczosQRPrecond(D, E, y, iterations)
 
-    e1 = Matrix(1.0*I(iterations))[:, 1]
+    actual_iterations = size(R)[2]
 
-    # Multiplying P (or P') by y
-    if (PRECOND == "PAPT")
-        bu = y[1 : sizeD]
-        bb = y[sizeD + 1 : sizeA]
-        y_prec = [D * bu ; E * bu + S * bb]
-    else
-        bu = y[1 : sizeD]
-        bb = y[sizeD + 1 : sizeA]
-        y_prec = [D * bu + E' * bb ; S' * bb]
-    end
+    e1 = Matrix(1.0*I(actual_iterations))[:, 1]
+
+    U = (cholesky(Matrix(S)).U)       # U'U = S
+    Uinv = SparseMatrixCSC(inv(U))
+    sqrtD = inv(sqrt.(D))
+
+    # Multiplying P by y
+    bu = y[1 : sizeD]
+    bb = y[sizeD + 1 : sizeA]
+    y_prec = [sqrtD * bu ; Uinv' * bb]
 
     z = LeastSquares_QR(Q, R, (e1*norm(y_prec)))
 
-    out_x = L[:, 1:iterations] * z
+    out_x = L[:, 1:actual_iterations] * z
 
-    # reconstruct solution to original system
-    if (PRECOND == "PAPT")
-        xu = out_x[1 : sizeD]
-        xb = out_x[sizeD + 1 : sizeA]
-        x = [D * xu + E' * xb ; S' * xb]
-    else
-        xu = out_x[1 : sizeD]
-        xb = out_x[sizeD + 1 : sizeA]
-        x = [D * xu; E * xu + S * xb]
-    end
+    # Multiplying P' by x
+
+    xu = out_x[1 : sizeD]
+    xb = out_x[sizeD + 1 : sizeA]
+    x = [sqrtD * xu ; Uinv * xb]
 
     return x
 

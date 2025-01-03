@@ -1,0 +1,170 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global}
+    \entry{dimacsminflow}{misc}{}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labeltitlesource}{title}
+      \field{title}{DIMACS minimum cost flow problems}
+      \verb{urlraw}
+      \verb https://web.mit.edu/lpsolve_v5525/doc/DIMACS_mcf.htm
+      \endverb
+      \verb{url}
+      \verb https://web.mit.edu/lpsolve_v5525/doc/DIMACS_mcf.htm
+      \endverb
+    \endentry
+    \entry{frangioni2011projected}{article}{}
+      \name{author}{4}{}{%
+        {{hash=0efdfd90964430ee3d00575c8fb75f0e}{%
+           family={Frangioni},
+           familyi={F\bibinitperiod},
+           given={Antonio},
+           giveni={A\bibinitperiod}}}%
+        {{hash=004b95422ee5423a381510bcc5d1e41f}{%
+           family={Gentile},
+           familyi={G\bibinitperiod},
+           given={Claudio},
+           giveni={C\bibinitperiod}}}%
+        {{hash=565e6f5295fdbd626ad54290834966ed}{%
+           family={Grande},
+           familyi={G\bibinitperiod},
+           given={Enrico},
+           giveni={E\bibinitperiod}}}%
+        {{hash=da116de3d5a7d9b3588d48bb9f5fb07c}{%
+           family={Pacifici},
+           familyi={P\bibinitperiod},
+           given={Andrea},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {INFORMS}%
+      }
+      \strng{namehash}{1fa6b9493f8364295c376bca24fbf671}
+      \strng{fullhash}{6571906918794ccb0b85a53d67cfa880}
+      \strng{bibnamehash}{1fa6b9493f8364295c376bca24fbf671}
+      \strng{authorbibnamehash}{1fa6b9493f8364295c376bca24fbf671}
+      \strng{authornamehash}{1fa6b9493f8364295c376bca24fbf671}
+      \strng{authorfullhash}{6571906918794ccb0b85a53d67cfa880}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Operations research}
+      \field{number}{5}
+      \field{title}{Projected perspective reformulations with applications in design problems}
+      \field{volume}{59}
+      \field{year}{2011}
+      \field{pages}{1225\bibrangedash 1232}
+      \range{pages}{8}
+    \endentry
+    \entry{higham2002accuracy}{book}{}
+      \name{author}{1}{}{%
+        {{hash=5bec9d02065c9b35d45c881a24f7a1cd}{%
+           family={Higham},
+           familyi={H\bibinitperiod},
+           given={Nicholas\bibnamedelima J},
+           giveni={N\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {SIAM}%
+      }
+      \strng{namehash}{5bec9d02065c9b35d45c881a24f7a1cd}
+      \strng{fullhash}{5bec9d02065c9b35d45c881a24f7a1cd}
+      \strng{bibnamehash}{5bec9d02065c9b35d45c881a24f7a1cd}
+      \strng{authorbibnamehash}{5bec9d02065c9b35d45c881a24f7a1cd}
+      \strng{authornamehash}{5bec9d02065c9b35d45c881a24f7a1cd}
+      \strng{authorfullhash}{5bec9d02065c9b35d45c881a24f7a1cd}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Accuracy and stability of numerical algorithms}
+      \field{year}{2002}
+    \endentry
+    \entry{netgenwebsite}{misc}{}
+      \field{sortinit}{N}
+      \field{sortinithash}{22369a73d5f88983a108b63f07f37084}
+      \field{labeltitlesource}{title}
+      \field{title}{NETGEN}
+      \verb{urlraw}
+      \verb https://ngsolve.org/
+      \endverb
+      \verb{url}
+      \verb https://ngsolve.org/
+      \endverb
+    \endentry
+    \entry{saad2003iterative}{book}{}
+      \name{author}{1}{}{%
+        {{hash=7fe737d5e37812399cf79c29f4385a66}{%
+           family={Saad},
+           familyi={S\bibinitperiod},
+           given={Yousef},
+           giveni={Y\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {SIAM}%
+      }
+      \strng{namehash}{7fe737d5e37812399cf79c29f4385a66}
+      \strng{fullhash}{7fe737d5e37812399cf79c29f4385a66}
+      \strng{bibnamehash}{7fe737d5e37812399cf79c29f4385a66}
+      \strng{authorbibnamehash}{7fe737d5e37812399cf79c29f4385a66}
+      \strng{authornamehash}{7fe737d5e37812399cf79c29f4385a66}
+      \strng{authorfullhash}{7fe737d5e37812399cf79c29f4385a66}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Iterative methods for sparse linear systems}
+      \field{year}{2003}
+    \endentry
+    \entry{trefethen2022numerical}{book}{}
+      \name{author}{2}{}{%
+        {{hash=e3376455eaec77b00950a1dc9ce095f5}{%
+           family={Trefethen},
+           familyi={T\bibinitperiod},
+           given={Lloyd\bibnamedelima N},
+           giveni={L\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+        {{hash=22ad692c20b3b8f8f6a32384dae0ac10}{%
+           family={Bau},
+           familyi={B\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {SIAM}%
+      }
+      \strng{namehash}{37975382dbce969c6946ec910a13d1f7}
+      \strng{fullhash}{37975382dbce969c6946ec910a13d1f7}
+      \strng{bibnamehash}{37975382dbce969c6946ec910a13d1f7}
+      \strng{authorbibnamehash}{37975382dbce969c6946ec910a13d1f7}
+      \strng{authornamehash}{37975382dbce969c6946ec910a13d1f7}
+      \strng{authorfullhash}{37975382dbce969c6946ec910a13d1f7}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Numerical linear algebra}
+      \field{year}{2022}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

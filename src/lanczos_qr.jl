@@ -89,7 +89,7 @@ function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
             
             if beta[j] < 1e-13
                 println("Breakdown");
-                return (L, alpha, beta, Q, R)
+                return (L[:, 1:j], alpha, beta, Q[1:j+1, 1:j+1], R[1:j+1, 1:j])
             end
             
         end

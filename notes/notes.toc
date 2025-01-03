@@ -1,0 +1,39 @@
+\contentsline {section}{\numberline {1}Problem Statement}{2}{section.1}%
+\contentsline {section}{\numberline {2}GMRES}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Background: Krylov Spaces and Arnoldi}{3}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Simplifying the minimum problem}{3}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Lanczos}{4}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Lanczos + QR}{5}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}Extending the QR decomposition}{5}{subsubsection.2.4.1}%
+\contentsline {paragraph}{Constructing the $R$ Matrix}{6}{section*.14}%
+\contentsline {paragraph}{Constructing the $Q$ matrix}{6}{section*.15}%
+\contentsline {subsection}{\numberline {2.5}Solving the minimum problem, given QR}{7}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Computational Complexity}{7}{subsection.2.6}%
+\contentsline {subsubsection}{\numberline {2.6.1}Time Complexity of Lanczos+QR}{7}{subsubsection.2.6.1}%
+\contentsline {subsubsection}{\numberline {2.6.2}Space Complexity of Lanczos+QR}{7}{subsubsection.2.6.2}%
+\contentsline {subsubsection}{\numberline {2.6.3}Time complexity of GMRES}{8}{subsubsection.2.6.3}%
+\contentsline {subsubsection}{\numberline {2.6.4}Space complexity of GMRES}{8}{subsubsection.2.6.4}%
+\contentsline {subsection}{\numberline {2.7}Stability}{8}{subsection.2.7}%
+\contentsline {subsubsection}{\numberline {2.7.1}Background: Backward Stability}{8}{subsubsection.2.7.1}%
+\contentsline {subsubsection}{\numberline {2.7.2}Backward Stability of QR factorization}{8}{subsubsection.2.7.2}%
+\contentsline {section}{\numberline {3}GMRES with preconditioner}{10}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Implementation details}{10}{subsection.3.1}%
+\contentsline {paragraph}{Block computation}{10}{section*.48}%
+\contentsline {paragraph}{Approximation of $S$}{10}{section*.49}%
+\contentsline {subsubsection}{\numberline {3.1.1}Complexity and stability}{10}{subsubsection.3.1.1}%
+\contentsline {section}{\numberline {4}Additional implementations}{11}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Restarted versions of the algorithms}{11}{subsection.4.1}%
+\contentsline {paragraph}{Reasons for using the restarted version}{11}{section*.50}%
+\contentsline {paragraph}{Correctness: restart invariant}{11}{section*.51}%
+\contentsline {paragraph}{Drawbacks of the method}{12}{section*.52}%
+\contentsline {section}{\numberline {5}Generating instances of the problem}{12}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Min-Cost Flow}{12}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Problem and constraints in matrix form}{12}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}KKT System}{13}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Netgen dataset, and generating $D$}{13}{subsection.5.4}%
+\contentsline {paragraph}{Generating $D$}{13}{section*.57}%
+\contentsline {paragraph}{Other ways to construct $D$}{13}{section*.58}%
+\contentsline {section}{\numberline {6}Experimental Results}{14}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Comparison in performance for different $D$}{14}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Comparison between the precond. and non-precond. systems}{14}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Comparison between GMRES and Restarted GMRES}{16}{subsection.6.3}%

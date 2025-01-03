@@ -71,7 +71,7 @@ print("Residual final: ", norm(A * x - y))
 
 
 ### DEBUGGING CODE ###
-#= 
+#=
 println("now solving non-precond problem:")
 
 @time x = GMRES_IncrementalQR(A, y, n)

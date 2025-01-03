@@ -6,8 +6,11 @@ function generate_quadratic_costs(lin_costs)
     m = size(lin_costs)[1]
     quadratic_costs = zeros(m)
 
+    a = 3
+    b = 10
+
     for i in 1:m
-        quadratic_costs[i] = rand() * 7. * lin_costs[i] + 3. * lin_costs[i]
+        quadratic_costs[i] = rand() * (b - a) * lin_costs[i] + a * lin_costs[i]
     end
     return quadratic_costs
 end
@@ -69,7 +72,7 @@ end
 
 function gen_A_uniform(E_bar)
     E = E_bar[1 : size(E_bar)[1] - 1, :]
-    D = diagm(rand(size(E, 2)))
+    D = Diagonal(rand(size(E, 2)))
     Eᵀ = transpose(E) * 1.0
     Z = zeros(size(E, 1), size(E, 1))
 
