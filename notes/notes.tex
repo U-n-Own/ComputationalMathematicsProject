@@ -14,6 +14,7 @@
 \usepackage{biblatex}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{algorithm}
 \addbibresource{main.bib}
 
 \lstdefinelanguage{Julia}%
@@ -35,12 +36,13 @@
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 
 \lstdefinestyle{mystyle}{
-    backgroundcolor=\color{backcolour},   
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{magenta},
+    language = Julia,
+    backgroundcolor=\color{white},
+    commentstyle=\itshape,
+    keywordstyle=\bfseries,
     numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\footnotesize,
+    stringstyle=\itshape,
+    basicstyle=\small,
     breakatwhitespace=false,         
     breaklines=true,                 
     captionpos=b,                    
@@ -50,7 +52,51 @@
     showspaces=false,                
     showstringspaces=false,
     showtabs=false,                  
-    tabsize=2
+    tabsize=2,
+    mathescape=true
+}
+
+\lstdefinestyle{mystyle_tt}{
+    language = Julia,
+    frame=single,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\itshape,
+    keywordstyle=\bfseries\color{codepurple},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\itshape,
+    basicstyle=\small\ttfamily,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    mathescape=true
+}
+
+\lstdefinestyle{mystyle_plain}{
+    frame=single,
+    backgroundcolor=\color{white},
+    commentstyle=\itshape,
+    keywordstyle=\small\ttfamily,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\itshape,
+    basicstyle=\small\ttfamily,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    mathescape=false
 }
 
 \lstset{style=mystyle}
@@ -99,7 +145,6 @@
 \maketitle
 
 \tableofcontents
-\newpage
  \section{Problem Statement}
  \begin{framed}
  (P) is a sparse linear system of the form:
@@ -124,15 +169,15 @@ b\\c
  by updating the QR factorization of $H_n$
  at each step: given the QR factorization of $H_{n-1}$
  computed at the previous step, apply one more orthogonal transformation to compute that of $H_n$.
-\item (A2)is the same GMRES, but using the so-called \emph{Schur complement preconditioner}
+\item (A2)is the same GMRES, but using the following preconditioner
 $$P = \begin{bmatrix}
-     D & 0\\
-     E & S
+     D^{-\frac12} & 0\\
+     0 & R^{-T}
     \end{bmatrix}$$
     where $S$
  is either $S=ED^{-1}E^T$
  or a sparse approximation of it (to obtain it, for instance, replace the smallest off-diagonal entries of $S$
- with zeros).
+ with zeros), and $S = R^TR$ is its Cholesky factorization.
 
 \end{itemize}
 No off-the-shelf solvers allowed.
@@ -201,48 +246,44 @@ AQ_n = Q_{n+1} \hess_n \label{arnoldi_eq}
     &&&& \beta_{m-1} & \alpha_m
    \end{bmatrix}
 \]
-This allows us to perform the computations without storing the whole matrix, but only the diagonal and subdiagonal. The Julia implementation of the algorithm is as follows: \sidenote{\color{red}TODO: Write this as pseudocode}
-
+This allows us to perform the computations without storing the whole matrix, but only the diagonal and subdiagonal. The algorithm is as follows:
+\begin{algorithm} \caption{Lanczos Algorithm}
 \begin{lstlisting}
-function Lanczos(A::SparseMatrixCSC, y::SparseVector, n::Int)
+function Lanczos(A, y, n)
     
-    alpha = zeros(1,n)      # diagonal of H
-    beta = zeros(1,n)       # subdiagonal of H (= superdiagonal of H because symmetric)
-    
-    L = zeros(size(A)[1], n)    # Lanczos Basis
+    $\alpha$ = $\beta$ := $\mathbf 0 \in \reals^n$      # diagonal and subdiagonal of H
+    $L$ := $\mathbf 0 \in \reals^{m \times n}$        # Lanczos Basis
     
     # base case
-    
-    q = y / norm(y)
-    L[:, 1] = q
-    w = A * q
-    alpha[1] = w' * q
-    w = w - alpha[1] * q
-    beta[1] = norm(w)
+    $q$ := $\frac{y}{\|y\|}$
+    $L$[:, 1] := $q$
+    $w$ := $A * q$
+    $\alpha$[1] := $w^T$ * $q$
+    $w$ := $w$ - $\alpha$[1] * $q$
+    $\beta$[1] := $\|w\|$
+
     # inductive case
-    
-    for j in 2:n
-        if j % 500 == 0
-            println(j, "-th Lanczos iteration")
-        end
-        if beta[j-1] < 1e-13
+    for $j$ in 2...$n$
+        if $\beta$[j-1] < 1e-13
             println("Breakdown");
             return
         end
-        q = w / beta[j-1]
-        L[:, j] = q
+        $q$ = $\frac w {\beta[j-1]}$
+        $L$[:, $j$] = $q$
         
-        w = A * q
-        alpha[j] = w' * q
-        w = w - alpha[j] * q - beta[j-1] * L[:, j-1]
-        beta[j] = norm(w)
+        $w$ := $A * q$
+        $\alpha$[j] := $w^T$ * $q$
+        $w$ := $w$ - $\alpha[j] * q - \beta$[$j$-1] * L[:, $j$-1]
+        $\beta$[j] = $\|w\|$
         
     end 
     
-    return (L, alpha, beta)
+    return (L, $\alpha$, $\beta$)
 
 end
 \end{lstlisting}
+\end{algorithm}
+
 \newpage
 \subsection{Lanczos + QR}
 A trivial way to implement GMRES would be:
@@ -341,7 +382,7 @@ Recall that $R_{old}$ is an $n \times (n-1)$ upper triangular matrix, hence it h
             0,
             \beta_{n-1},
             \alpha_n]Q'_{old})^T\]
-  Let $q_1 ... q_n$ be the columns of $Q'_{old}$. (\sidenote{\color{red} Too many $Q$s: TODO rename Lanczos basis vector to $b_i$?}) The result is:
+  Let $q_1 ... q_n$ be the columns of $Q'_{old}$. The result is:
   \[\sum_i \beta_{n-1} q_{i, n-1} + \alpha_{n} q_{i, n}\]
   This can be rewritten, letting $r_1...r_n$ be the rows of $Q'_{old}$, as:
   \[\beta_{n-1}r_{n-1} + \alpha_n r_{n}\]
@@ -358,23 +399,21 @@ Recall that $R_{old}$ is an $n \times (n-1)$ upper triangular matrix, hence it h
   
   Altenatively we can calculate the new Q as follows:
   \[Q = O^T Q'_{old} = OQ_{old}\]
-  By the symmetry of $O$, which is guaranteed by the symmetry of $H_{refl}$. Computationally, we only need to update the last two columns of $Q$, so we need not construct $O$ explicitly. The following Julia snippet shows such computation \sidenote{\color{red} TODO write pseudocode instead}
+  By the symmetry of $O$, which is guaranteed by the symmetry of $H_{refl}$. Computationally, we only need to update the last two columns of $Q$, so we need not construct $O$ explicitly. The following algorithm illustrates our approach:
 
+  \begin{algorithm}
+\caption{Construction of $Q$ matrix}
 \begin{lstlisting}
-  Q[j+1, j+1] = 1.0
-
-  newcols = zeros(j+1, 2)
-              
-  for i in 1:j+1
-    # Compute Q_old * O without constructing O
-    # Can compute Q_old * O instead of Q_old * O' because O is sym.
-                  
-    newcols[i, 1]     = Q[i, j] * Hrefl[1,1] + Q[i, j+1] * Hrefl[2,1]
-    newcols[i, 2]   = Q[i, j] * Hrefl[1,2] + Q[i, j+1] * Hrefl[2,2]
+  $Q[j+1, j+1]$ := 1.0
+  newcols := $\mathbf{0} \in \reals^{(j+1) \times 2}$
+  for $i$ in 1...$j$+1
+    newcols[$i$, 1] := $Q$[i, j] * $H_{refl}$[1,1] + $Q$[i, j+1] * $H_{refl}$[2,1]
+    newcols[$i$, 2] := $Q$[i, j] * $H_{refl}$[1,2] + $Q$[i, j+1] * $H_{refl}$[2,2]
   end
-              
-  Q[1:j+1, j:j+1] = newcols
+  Q[$1$:$j$+1, $j$:$j$+1] := newcols
 \end{lstlisting}
+
+  \end{algorithm}
 
   
   \newpage
@@ -530,39 +569,49 @@ we can conclude:
 \section{GMRES with preconditioner}
 
 In this section we discuss how we implemented the algorithm using the following preconditioner: $$P = \begin{bmatrix}
-     D & 0\\
-     E & S
+     D^{-\frac12} & 0\\
+     0 & R^{-T}
     \end{bmatrix}$$
-    where is $S=ED^{-1}E^T$ or an approximation of it, obtained by replacing the smallest off-diagonal entries of $S$ with zeros. Since our matrix is symmetric, the preconditioned problem we want to solve can be either:
+    where where $S$
+ is either $S=ED^{-1}E^T$
+ or a sparse approximation of it, and $S = R^TR$ is its Cholesky factorization.
+ Since our matrix is symmetric, the preconditioned problem we want to solve is:
     \[ PAP^T(P^{-T}x) = Py \]
-    or
-    \[ P^TAP(P^{-1}x) = P^Ty \]
-    In our implementation, we provide algorithms to solve both of these systems. As we will later discuss, the second system turned out to provide much more accurate results, but was generally less sparse, hence impacting the compute time.
 
     \subsection{Implementation details}
-    \paragraph{Block computation} In order to save space, we never construct $P$ explicitly. What we do is exploit the block structure to obtain $PAP^T$ and $P^TAP$ directly:
-    \[
-     PAP^T = \begin{bmatrix}
-      D^3 & D^2E^T + DE^TS^T\\
-      (ED+SE)D & (ED+SE)E^T + EE^TS^T
-     \end{bmatrix}
-    \]
+    We do not construct the preconditioner explicitly. Rather, we perform multiplications by $PAP^T$ as:
+        \lstset{style=mystyle_tt}
+    \begin{lstlisting}
+w = mult_by_PT(q, sqrtD, Uinv)
+w = A * w
+w = mult_by_P(w, sqrtD, Uinv)\end{lstlisting}
+    Where \texttt{sqrtD} is $D^{-1/2}$, \texttt{Uinv} is $U^{-1}$, and:
+\begin{lstlisting}
+function mult_by_P(v, sqrtD, Uinv)
+    sizeD = size(sqrtD)[1]
+    sizeP = sizeD + size(Uinv)[1]
 
-    \[
-     P^TAP = \begin{bmatrix}
-      (D^2+E^TE)D + DE^TE & DE^TS\\
-      E^TED & 0
-     \end{bmatrix}
-    \]
-By precomputing the blocks, we obtain a relatively efficient algorithm.
+    bu = v[1 : sizeD]
+    bb = v[sizeD + 1 : sizeP]
+    v = [sqrtD * bu ; Uinv' * bb]
+
+    return v
+end
+
+function mult_by_PT(v, sqrtD, Uinv)
+    return mult_by_P(v, sqrtD, Uinv')
+end\end{lstlisting}
+
+
+
 \paragraph{Approximation of $S$} Once $S$ is computed, we can remove all off-diagonal elements under some threshold using the following Julia code:
 \begin{lstlisting}
-     # set off-diagonal elements under some threshold to zero
-    if THRESHOLD_ZERO > 0
-        threshold = THRESHOLD_ZERO
-        mask = .!I(heightE) .& (abs.(S) .< threshold)
-        S[mask] .= 0
-    end
+  # set off-diagonal elements under some threshold to zero
+  if THRESHOLD_ZERO > 0
+      threshold = THRESHOLD_ZERO
+      mask = .!I(heightE) .& (abs.(S) .< threshold)
+      S[mask] .= 0
+  end
 \end{lstlisting}
 \subsubsection{Complexity and stability}
 
@@ -580,36 +629,40 @@ In addition to the GMRES implementation, we provided a \emph{higher-order functi
 
 For larger values of $n$, the cost of GMRES in operations and storage may be prohibitive. This is because, as seen before, the algorithm is quadratic both in time and in space. One way to mitigate these issues is to \emph{restart} the algorithm after a certain number of iterations. The restarted GMRES algorithm, as implemented in Julia, is as follows:
 
-\begin{lstlisting}
-function RestartedGMRES(GMRES_Method, A, y, max_iter, restart, tol)
+\begin{lstlisting}[mathescape = False]
+function GMRES_Restarted(GMRES_Method :: Function, A::SparseMatrixCSC, y::Vector, args :: Tuple, max_iter::Int, restart::Int, tol::Float64)
+    x = spzeros(size(A, 2))
 
-    x = zeros(size(A)[2])
-
-    # Initial guess is initial r0
+    # Current residual
     r = y - A * x
     norm_r = norm(r)
 
     iter = 0
+    while norm_r > tol && iter < max_iter
 
-    while iter < max_iter && norm_r > tol
+        # Perform GMRES for 'restart' iterations
+        dx = GMRES_Method(args..., Vector(r), restart)
 
-      # Perform GMRES and get current solution
-      dx = GMRES_Method(A, y, restart)
+        # Update solution and residual
+        x += dx
+        r = y - A * x
+        norm_r = norm(r)
 
-      x += dx
-      r = y - A * x
-      norm_r = norm(r)
+        iter += restart
 
-      iter += restart
+        println("Iteration $iter, Residual Norm: $norm_r")
     end
 
-    if norm_r > tol
-      println("Did not converge")
+    if norm_r <= tol
+        println("Converged in $iter iterations with residual norm $norm_r")
+    else
+        println("Did not converge within $max_iter iterations. Final residual norm: $norm_r")
     end
 
     return x
 end
 \end{lstlisting}
+
 
 \paragraph{Correctness: restart invariant}
  Let $r_i$ be the residual after restart $i$: $r_i = y-Ax_{i}$. We have the following:
@@ -708,7 +761,7 @@ The main issue with this dataset is that, indeed, it only provides linear costs.
 \newpage
 \section{Experimental Results}
 
-The following experimental results refer to a 9000$\times$9000 matrix, and were ran on a laptop with a \emph{13th Gen Intel(R) Core(TM) i5-1335U} processor, and 16 GB of RAM.
+The following experimental results refer to a 9215$\times$9215 matrix, and were ran on a laptop with a \emph{13th Gen Intel(R) Core(TM) i5-1335U} processor, and 16 GB of RAM.
 
 \subsection{Comparison in performance for different $D$}
 
@@ -743,58 +796,29 @@ The following experimental results refer to a 9000$\times$9000 matrix, and were 
 
 \subsection{Comparison between the precond. and non-precond. systems}
 
-We proposed two ways to use the preconditioner, preserving the symmetry:
-\[ PAP^T(P^{-T}x) = Py \]
-and
-\[ P^TAP(P^{-1}x) = P^Ty \]
-We analyse the impact of both. In Figures \ref{fig:papt} and \ref{fig:ptap}, we show how:
+In this section we compare the preconditioned algorithm to the non-preconditioned one. In Figure \ref{fig:precond}, we show how:
 \begin{itemize}
- \item For the matrix with $D = I$, the preconditioned system in $P^TAP$ form is solved with slightly better precision than the $PAP^T$ one. Nonetheless, both preconditioned methods achieve much worse precision than the non-preconditioned ones.
- \item For the matrix with uniformly distributed diagonal elements, the preconditioned method fails to converge in both cases.
-  \item Similarly, with the generated quadratic costs, the residual stagnates on a very high value, without reaching an acceptable value.
+ \item For the matrix with $D = I$, we remark that the preconditioned algorithm converges much faster, albeit to a slightly less precise result.
+ \item The same is true for the matrix with elements in $[0,1]$.
+ \item The preconditioned algorithm performs the best with the ill-conditioned matrix obtained generating the quadratic weights. Not only does it converge fast, but the result is several orders of magnitude more precise than the non-preconditioned algorithm.
 \end{itemize}
 
+From these observations, in particular the one regarding the ill-conditioned matrix, we conclude that the preconditioner works. The reason why the performance is not improved in the first two cases, is that the two matrices were already well-conditioned, as shown in the following table.
 
-
-\noindent From these experimental results, it is apparent that the preconditioned system converges to a less accurate result than the non-preconditioned one. This is not what we expected, but it would seem that the proposed preconditioner is not adequate for this application.\smallskip
-
-\noindent In order to investigate this behaviour, we compute the matrix conditioning for the preconditioned and non-preconditioned matrices:
 \begin{center}
 { \renewcommand{\arraystretch}{1.5}
-\begin{tabular}{|l|c|c|c|}
+\begin{tabular}{|l|c|c|}
 \hline
-& \textbf{Non-precond.} & \textbf {$PAP^T$} & \textbf{$P^TAP$}\\
+& \textbf{Non-precond.} & \textbf {Precond.}\\
 \hline
-\textbf{All ones} & $7.104 \cdot 10^{3}$  & $3.432 \cdot 10^{12}$ & $3.303 \cdot 10^{11}$\\
-\textbf{Uniform in $[0,1]$} & $2.74 \cdot 10^{3}$ & $1.918 \cdot 10^{14}$ & $1.182 \cdot 10^{13}$\\
-\textbf{Generated Quadratic} & $1.347 \cdot 10^{11}$ & $6.496 \cdot 10^{25}$ & $1.041 \cdot 10^{29}$\\
+\textbf{All ones} & $7.104 \cdot 10^{3}$  & 2.618 \\
+\textbf{Uniform in $[0,1]$} & $2.74 \cdot 10^{3}$ & 2.618 \\
+\textbf{Generated Quadratic} & $1.347 \cdot 10^{11}$ &2.618 \\
 \hline
 \end{tabular}
 }
 \end{center}
-Indeed, we observe that the preconditioned matrices exhibit higher condition numbers than the non-preconditioned ones. This is consistent with the preconditioner not being adequate.
-
-\begin{figure}
-  \begin{minipage}{.45\textwidth}
- \begin{center}
-\includegraphics[scale = .18]{./plots/precond all ones papt}
- \end{center}
-
- \end{minipage}
-  \begin{minipage}{.45\textwidth}
- \begin{center}
-\includegraphics[scale = .18]{./plots/precond uniform papt}
- \end{center}
-
- \end{minipage}
-
-  \begin{center}
-\includegraphics[scale = .18]{./plots/precond generated papt}
- \end{center}
-
- \caption{Comparison between preconditioned and non-preconditioned system in $PAP^T$ form.}
- \label{fig:papt}
-\end{figure}
+The value of the condition number for all three preconditioned matrices, $\sim$2.61803398875, appears to be the \emph{golden ratio} ($\varphi$) plus one.
 
 \begin{figure}
   \begin{minipage}{.45\textwidth}
@@ -809,16 +833,133 @@ Indeed, we observe that the preconditioned matrices exhibit higher condition num
  \end{center}
 
  \end{minipage}
+
   \begin{center}
 \includegraphics[scale = .18]{./plots/precond generated}
  \end{center}
 
- \caption{Comparison between preconditioned and non-preconditioned system in $P^TAP$ form.}
- \label{fig:ptap}
+ \caption{Comparison between preconditioned and non-preconditioned system.}
+ \label{fig:precond}
 \end{figure}
 
+\newpage
 \subsection{Comparison between GMRES and Restarted GMRES}
-[{\color{red} TODO}]
+
+As mentioned, for the correct choice of the \texttt{restart} parameter, the restarted version of the algorithm is able to provide faster and more precise results. In figures \ref{fig:restarted_ones},\ref{fig:restarted_uniform},\ref{fig:restarted_generated} we compare all the methods described in this report, including the restarted ones. Once again, we used a 9215$\times$9215 matrix from the \texttt{netgen} dataset, on the same setup as above.
+
+\subsubsection{Matrix with $D = I$}
+
+With this particularly well-behaved matrix, all proposed methods converge very fast, the fastest one being the restarted method (with \texttt{restart} = 300), and the most precise being the restarted preconditioned method, which reaches $10^{-10}$. The convergence times are all well below one second.
+
+\begin{figure}[H]
+   \begin{center}
+\includegraphics[scale = .2]{./plots/all all ones}
+ \end{center}
+ \caption{Comparison of all methods for $D=I$.}
+ \label{fig:restarted_ones}
+\end{figure}
+
+\subsubsection{Matrix with diagonal in [0,1]}
+With this matrix, the fastest converging method is the preconditioned algorithm, which reaches convergence in less than one second. The most precise algorithm is still the restarted preconditioned algorithm (with \texttt{restart} = 300), which reaches a precision of $10^{-10}$ in less than two seconds.
+
+\begin{figure}[H]
+ \begin{center}
+\includegraphics[scale = .2]{./plots/all uniform}
+ \end{center}
+ \caption{Comparison of all methods for $D$ uniform in $[0,1]$.}
+ \label{fig:restarted_uniform}
+\end{figure}
+
+\subsubsection{Matrix with generated quadratic costs}
+With this ill-conditioned matrix, GMRES and Restarted GMRES do not reach convergence. The preconditioned algorithm converges to $10^{-7}$ in less then one second, whereas the restarted preconditioned (with \texttt{restart} = 300) algorithm reaches $10^{-10}$ in less than two seconds.
+
+ \begin{figure}[H]
+  \begin{center}
+  \includegraphics[scale = .2]{./plots/all generated}
+ \end{center}
+
+ \caption{Comparison of all methods for generated quadratic costs.}
+ \label{fig:restarted_generated}
+\end{figure}
+
+\section{Command Line Tool}
+
+We wrote a command line tool to facilitate the testing of our algorithms. The following is its usage, which can be obtained by writing \texttt{julia main.jl --help}
+
+
+\lstset{style=mystyle_plain}
+\begin{lstlisting}
+ usage: main.jl [--iterations ITERATIONS] [--restart RESTART]
+               [--diagonal DIAGONAL] [--tol TOL] [--step STEP]
+               [--precond] [--restarted] [-h] mode data
+
+positional arguments:
+  mode                  Program mode. Can be "compute" or "bench".
+  data                  Path to the problem data.
+
+optional arguments:
+  --iterations ITERATIONS
+                        Number of iterations. If 0, uses size of
+                        matrix. (type: Int64, default: 0)
+  --restart RESTART     Restart parameter of restarted algorithm.
+                        (type: Int64, default: 300)
+  --diagonal DIAGONAL   Can be "ones", "uniform" or "quadratic"
+                        (default: "quadratic")
+  --tol TOL             Tolerance parameter of restarted algorithm.
+                        (type: Float64, default: 1.0e-9)
+  --step STEP           Step between iter values in bench mode. If 0,
+                        uses iterations/4 (type: Int64, default: 0)
+  --precond             Preconditioned? [used in compute mode].
+  --restarted           Restarted? [used in compute mode].
+  -h, --help            show this help message and exit
+
+\end{lstlisting}
+
+\subsection{Examples}
+
+The command line tool has two ``modes''. \textbf{Compute mode} can be used to perform the algorithm on a graph from the dataset. In the following example:
+
+\begin{itemize}
+ \item We specify the mode;
+ \item We specify the data;
+ \item We set the diagonal type through a command line option;
+ \item We set the number of iteration we want to perform in the same fashion.
+\end{itemize}
+
+
+ \begin{lstlisting}
+$ julia main.jl compute ./dataset/net10_8_1.dmx_out.npz --diagonal ones  --iterations 200
+Compute mode
+============
+Performing 200 iterations:
+residual: 1.8868471430781007e-10 computed in 0.108904859s
+
+ \end{lstlisting}
+On the other hand, \textbf{bench mode} can be used to plot the comparison between the methods. In the following example, since the step is not specified through a command line option, it defaults to $\frac 14$ times the number of iterations.
+ \begin{lstlisting}
+$ julia main.jl bench ./dataset/net10_8_1.dmx_out.npz --diagonal ones  --iterations 200
+Performing 200 iterations with step = 50
+ * Breakdown
+ * [...]
+ * Did not converge within 151 iterations. Final residual norm: 5.1003964751279926e-9
+press enter to terminate program.
+
+ \end{lstlisting}
+The program produces the scatter plot in figure \ref{fig:example}.
+\begin{figure}
+ \begin{center}
+\includegraphics[scale = .5]{plots/example}
+ \end{center}
+\caption{Example plot.}
+\label{fig:example}
+\end{figure}
+
+
+
+\section{Conclusions}
+
+We implemented two algorithms, GMRES and preconditioned GMRES, and a higher-order function that provides the \emph{restarted} version of any GMRES implementation. The algorithm without preconditioning is not able to provide satisfying results with realistic, ill-conditioned systems. The preconditioned algorithm is, instead, adequate for the purpose. However, for the right choice of the \texttt{restart} parameter, the \emph{restarted preconditioned} algorithm is able to converge quickly to results much more precise than any of the other proposed algorithms, even in the case of ill-conditioned matrices.
+
 
 \printbibliography %Prints bibliography
 

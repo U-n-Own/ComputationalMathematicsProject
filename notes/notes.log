@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2024.8.13)  2 JAN 2025 21:26
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2024.8.13)  7 JAN 2025 18:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -672,32 +672,38 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \@float@everytoks=\toks35
 \@floatcapt=\box66
 )
-\c@remark=\count436
-\c@claim=\count437
-\c@theo=\count438
-\@quotelevel=\count439
-\@quotereset=\count440
+(/usr/share/texlive/texmf-dist/tex/latex/algorithms/algorithm.sty
+Package: algorithm 2009/08/24 v0.1 Document Style `algorithm' - floating enviro
+nment
+\@float@every@algorithm=\toks36
+\c@algorithm=\count436
+)
+\c@remark=\count437
+\c@claim=\count438
+\c@theo=\count439
+\@quotelevel=\count440
+\@quotereset=\count441
  (./notes.aux)
 \openout1 = `notes.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 72.
-LaTeX Font Info:    ... okay on input line 72.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 118.
+LaTeX Font Info:    ... okay on input line 118.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 118.
+LaTeX Font Info:    ... okay on input line 118.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 118.
+LaTeX Font Info:    ... okay on input line 118.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 118.
+LaTeX Font Info:    ... okay on input line 118.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 118.
+LaTeX Font Info:    ... okay on input line 118.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 118.
+LaTeX Font Info:    ... okay on input line 118.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 118.
+LaTeX Font Info:    ... okay on input line 118.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 118.
+LaTeX Font Info:    ... okay on input line 118.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 118.
+LaTeX Font Info:    ... okay on input line 118.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -733,20 +739,20 @@ LaTeX Font Info:    ... okay on input line 72.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-\c@lstlisting=\count441
+\c@lstlisting=\count442
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count442
+\scratchcounter=\count443
 \scratchdimen=\dimen184
 \scratchbox=\box67
-\nofMPsegments=\count443
-\nofMParguments=\count444
-\everyMPshowfont=\toks36
-\MPscratchCnt=\count445
+\nofMPsegments=\count444
+\nofMParguments=\count445
+\everyMPshowfont=\toks37
+\MPscratchCnt=\count446
 \MPscratchDim=\dimen185
-\MPnumerator=\count446
-\makeMPintoPDFobject=\count447
-\everyMPtoPDFconversion=\toks37
+\MPnumerator=\count447
+\makeMPintoPDFobject=\count448
+\everyMPtoPDFconversion=\toks38
 ) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
@@ -756,7 +762,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-Package hyperref Info: Link coloring OFF on input line 72.
+Package hyperref Info: Link coloring OFF on input line 118.
 
 (./notes.out) (./notes.out)
 \@outlinefile=\write4
@@ -788,199 +794,209 @@ Package biblatex Info: Automatic encoding selection.
 Package biblatex Info: Trying to load bibliographic data...
 Package biblatex Info: ... file 'notes.bbl' found.
  (./notes.bbl)
-Package biblatex Info: Reference section=0 on input line 72.
-Package biblatex Info: Reference segment=0 on input line 72.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 100
+Package biblatex Info: Reference section=0 on input line 118.
+Package biblatex Info: Reference segment=0 on input line 118.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 146
 .
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 100
+LaTeX Font Info:    Trying to load font information for U+msb on input line 146
 .
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) (./notes.toc)
+) (./notes.toc
+[1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}])
 \tf@toc=\write5
 \openout5 = `notes.toc'.
 
+ [2{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [3]
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
+put line 250.
+LaTeX Font Info:    Trying to load font information for OML+cmr on input line 2
+67.
 
-[1
+(/usr/share/texlive/texmf-dist/tex/latex/base/omlcmr.fd
+File: omlcmr.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <9> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 267.
+ [4] [5] [6] [7]
+[8] [9]
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <9> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 590.
+ [10]
+LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 
+653.
+ (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmtt.fd
+File: ts1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+) [11]
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2{/usr/share/texmf/fonts/
-enc/dvips/cm-super/cm-super-ts1.enc}] [3]
-Underfull \hbox (badness 10000) in paragraph at lines 204--204
-[]$[]$ []\OT1/cmr/m/n/10 TODO:
- []
-
-
-Underfull \hbox (badness 1803) in paragraph at lines 204--204
-\OT1/cmr/m/n/10 Write this as
- []
-
-[4] [5]
-Underfull \hbox (badness 6332) in paragraph at lines 344--344
-[]$[]$ []\OT1/cmr/m/n/10 Too many
- []
-
-
-Underfull \hbox (badness 1087) in paragraph at lines 344--344
-\OT1/cmr/m/n/10 name Lanc-zos
- []
-
-[6] [7] [8] [9] [10] [11]
-
-LaTeX Font Warning: Command \scriptsize invalid in math mode on input line 652.
+LaTeX Font Warning: Command \scriptsize invalid in math mode on input line 705.
 
 
 
-LaTeX Font Warning: Command \scriptsize invalid in math mode on input line 652.
+LaTeX Font Warning: Command \scriptsize invalid in math mode on input line 705.
 
 
 [12]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 693.
+(hyperref)                removing `math shift' on input line 746.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 693.
+(hyperref)                removing `math shift' on input line 746.
 
 [13]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 713.
+(hyperref)                removing `math shift' on input line 766.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 713.
+(hyperref)                removing `math shift' on input line 766.
 
-<./plots/all ones.png, id=390, 1132.23pt x 741.52031pt>
+<./plots/all ones.png, id=438, 1132.23pt x 741.52031pt>
 File: ./plots/all ones.png Graphic file (type png)
 <use ./plots/all ones.png>
-Package pdftex.def Info: ./plots/all ones.png  used on input line 726.
+Package pdftex.def Info: ./plots/all ones.png  used on input line 779.
 (pdftex.def)             Requested size: 203.7926pt x 133.4679pt.
 
-Overfull \hbox (4.18365pt too wide) in paragraph at lines 726--727
+Overfull \hbox (4.18365pt too wide) in paragraph at lines 779--780
  [] 
  []
 
-<./plots/uniform.png, id=392, 1226.33156pt x 740.0147pt>
+<./plots/uniform.png, id=440, 1226.33156pt x 740.0147pt>
 File: ./plots/uniform.png Graphic file (type png)
 <use ./plots/uniform.png>
-Package pdftex.def Info: ./plots/uniform.png  used on input line 732.
+Package pdftex.def Info: ./plots/uniform.png  used on input line 785.
 (pdftex.def)             Requested size: 220.73015pt x 133.1969pt.
 
-Overfull \hbox (21.1212pt too wide) in paragraph at lines 732--733
+Overfull \hbox (21.1212pt too wide) in paragraph at lines 785--786
  [] 
  []
 
-<./plots/generated.png, id=393, 1144.275pt x 737.75626pt>
+<./plots/generated.png, id=441, 1144.275pt x 737.75626pt>
 File: ./plots/generated.png Graphic file (type png)
 <use ./plots/generated.png>
-Package pdftex.def Info: ./plots/generated.png  used on input line 738.
+Package pdftex.def Info: ./plots/generated.png  used on input line 791.
 (pdftex.def)             Requested size: 205.9606pt x 132.79039pt.
 [14 <./plots/all ones.png> <./plots/uniform.png> <./plots/generated.png>]
-<./plots/precond all ones papt.png, id=406, 1128.46594pt x 745.28438pt>
-File: ./plots/precond all ones papt.png Graphic file (type png)
-<use ./plots/precond all ones papt.png>
-Package pdftex.def Info: ./plots/precond all ones papt.png  used on input line 
-780.
-(pdftex.def)             Requested size: 203.1151pt x 134.1454pt.
-
-Overfull \hbox (3.50615pt too wide) in paragraph at lines 780--781
- [] 
- []
-
-<./plots/precond uniform papt.png, id=407, 1122.44344pt x 737.00343pt>
-File: ./plots/precond uniform papt.png Graphic file (type png)
-<use ./plots/precond uniform papt.png>
-Package pdftex.def Info: ./plots/precond uniform papt.png  used on input line 7
-86.
-(pdftex.def)             Requested size: 202.0311pt x 132.65489pt.
-
-Overfull \hbox (2.42215pt too wide) in paragraph at lines 786--787
- [] 
- []
-
-<./plots/precond generated papt.png, id=408, 1120.9378pt x 744.53156pt>
-File: ./plots/precond generated papt.png Graphic file (type png)
-<use ./plots/precond generated papt.png>
-Package pdftex.def Info: ./plots/precond generated papt.png  used on input line
- 792.
-(pdftex.def)             Requested size: 201.7601pt x 134.00989pt.
-<./plots/precond all ones.png, id=409, 1145.78062pt x 741.52031pt>
+<./plots/precond all ones.png, id=452, 1135.24126pt x 743.77875pt>
 File: ./plots/precond all ones.png Graphic file (type png)
 <use ./plots/precond all ones.png>
-Package pdftex.def Info: ./plots/precond all ones.png  used on input line 802.
-(pdftex.def)             Requested size: 206.23161pt x 133.4679pt.
+Package pdftex.def Info: ./plots/precond all ones.png  used on input line 826.
+(pdftex.def)             Requested size: 204.33461pt x 133.87439pt.
 
-Overfull \hbox (6.62267pt too wide) in paragraph at lines 802--803
+Overfull \hbox (4.72566pt too wide) in paragraph at lines 826--827
  [] 
  []
 
-<./plots/precond uniform.png, id=410, 1188.69093pt x 741.52031pt>
+<./plots/precond uniform.png, id=453, 1157.82562pt x 740.7675pt>
 File: ./plots/precond uniform.png Graphic file (type png)
 <use ./plots/precond uniform.png>
-Package pdftex.def Info: ./plots/precond uniform.png  used on input line 808.
-(pdftex.def)             Requested size: 213.95514pt x 133.4679pt.
+Package pdftex.def Info: ./plots/precond uniform.png  used on input line 832.
+(pdftex.def)             Requested size: 208.39961pt x 133.3324pt.
 
-Overfull \hbox (14.34619pt too wide) in paragraph at lines 808--809
+Overfull \hbox (8.79066pt too wide) in paragraph at lines 832--833
  [] 
  []
 
-<./plots/precond generated.png, id=411, 1272.25313pt x 740.7675pt>
+<./plots/precond generated.png, id=454, 1187.18532pt x 743.02594pt>
 File: ./plots/precond generated.png Graphic file (type png)
 <use ./plots/precond generated.png>
-Package pdftex.def Info: ./plots/precond generated.png  used on input line 813.
+Package pdftex.def Info: ./plots/precond generated.png  used on input line 838.
 
-(pdftex.def)             Requested size: 228.99568pt x 133.3324pt.
-[15 <./plots/precond all ones papt.png> <./plots/precond uniform papt.png> <./p
-lots/precond generated papt.png>] [16 <./plots/precond all ones.png> <./plots/p
-recond uniform.png> <./plots/precond generated.png>] (./notes.aux)
+(pdftex.def)             Requested size: 213.68413pt x 133.73889pt.
+[15 <./plots/precond all ones.png> <./plots/precond uniform.png> <./plots/preco
+nd generated.png>]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 850.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 850.
+
+<./plots/all all ones.png, id=465, 1138.2525pt x 746.03719pt>
+File: ./plots/all all ones.png Graphic file (type png)
+<use ./plots/all all ones.png>
+Package pdftex.def Info: ./plots/all all ones.png  used on input line 856.
+(pdftex.def)             Requested size: 227.64647pt x 149.20479pt.
+<./plots/all uniform.png, id=466, 1151.05031pt x 743.77875pt>
+File: ./plots/all uniform.png Graphic file (type png)
+<use ./plots/all uniform.png>
+Package pdftex.def Info: ./plots/all uniform.png  used on input line 867.
+(pdftex.def)             Requested size: 230.20598pt x 148.75311pt.
+[16 <./plots/all all ones.png> <./plots/all uniform.png>]
+<./plots/all generated.png, id=476, 1126.2075pt x 741.52031pt>
+File: ./plots/all generated.png Graphic file (type png)
+<use ./plots/all generated.png>
+Package pdftex.def Info: ./plots/all generated.png  used on input line 878.
+(pdftex.def)             Requested size: 225.2375pt x 148.30142pt.
+ [17 <./plots/all generated.png>]
+<plots/example.png, id=507, 443.40656pt x 282.30469pt>
+File: plots/example.png Graphic file (type png)
+<use plots/example.png>
+Package pdftex.def Info: plots/example.png  used on input line 951.
+(pdftex.def)             Requested size: 221.70273pt x 141.152pt.
+ [18 <./plots/example.png>] [19] (./notes.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `notes.out' has not changed.
-(rerunfilecheck)             Checksum: B84F2D5A7B90F482312C06009E2122CF;5999.
+(rerunfilecheck)             Checksum: B5B1A1D053ABDB77A586707BB8F10DF7;6986.
 Package logreq Info: Writing requests to 'notes.run.xml'.
 \openout1 = `notes.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 21946 strings out of 474222
- 373880 string characters out of 5748733
- 2174975 words of memory out of 5000000
- 43770 multiletter control sequences out of 15000+600000
- 568788 words of font info for 79 fonts, out of 8000000 for 9000
+ 22328 strings out of 474222
+ 379057 string characters out of 5748733
+ 2309975 words of memory out of 5000000
+ 44067 multiletter control sequences out of 15000+600000
+ 573325 words of font info for 95 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 79i,14n,93p,678b,1250s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 79i,14n,93p,678b,1563s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/share/tex
-live/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/share/texlive/texmf-
-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/f
-onts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/t
-ype1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/pu
-blic/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr1
-7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></
-usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dis
-t/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive/texmf-dist/font
-s/type1/public/amsfonts/cm/cmtt8.pfb></usr/share/texlive/texmf-dist/fonts/type1
-/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/symbols/msbm7.pfb></usr/share/texmf/fonts/type1/public/cm-super
-/sfrm1000.pfb>
-Output written on notes.pdf (16 pages, 855094 bytes).
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/share/texlive/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/share/texlive/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi
+9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><
+/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/sh
+are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/tex
+live/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9
+.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb><
+/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/sh
+are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/te
+xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb></usr/share/texlive/t
+exmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/te
+xmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb></usr/share/texmf/fonts/
+type1/public/cm-super/sfit0900.pfb></usr/share/texmf/fonts/type1/public/cm-supe
+r/sfrm0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr
+/share/texmf/fonts/type1/public/cm-super/sftt0900.pfb>
+Output written on notes.pdf (19 pages, 1065026 bytes).
 PDF statistics:
- 565 PDF objects out of 1000 (max. 8388607)
- 476 compressed objects within 5 object streams
- 189 named destinations out of 1000 (max. 500000)
- 286 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 735 PDF objects out of 1000 (max. 8388607)
+ 617 compressed objects within 7 object streams
+ 250 named destinations out of 1000 (max. 500000)
+ 339 words of extra memory for PDF output out of 10000 (max. 10000000)
 

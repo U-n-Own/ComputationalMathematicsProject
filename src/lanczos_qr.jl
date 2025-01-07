@@ -1,7 +1,6 @@
 using LinearAlgebra
 using Random
 using SparseArrays
-using ExponentialUtilities  # to compare with builtin arnoldi
 using TickTock  # to test complexity of LanczosQR
 
 include("QR.jl")
@@ -26,13 +25,13 @@ function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
     # base case + n * (inductive case)
     # let A be m*m
     for j in 1:n
-        if j % 500 == 0
-            if j > 500
-                tock()
-            end
-            println(j, "-th iteration")
-            tick()
-        end
+#         if j % 500 == 0
+#             if j > 500
+#                 tock()
+#             end
+#             println(j, "-th iteration")
+#             tick()
+#         end
 
 
         if j == 1
@@ -88,7 +87,7 @@ function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
             
             
             if beta[j] < 1e-13
-                println("Breakdown");
+                println(" * Breakdown");
                 return (L[:, 1:j], alpha, beta, Q[1:j+1, 1:j+1], R[1:j+1, 1:j])
             end
             
@@ -100,24 +99,3 @@ function LanczosQR(A::SparseMatrixCSC, y::Vector, n::Int)
     return (L, alpha, beta, Q, R)
 
 end
-
-#=
-D = SparseMatrixCSC(1.0 * I(100))
-E = sprand(20, 100, .7)
-Z = SparseMatrixCSC(zeros(20, 20))
-
-A = hcat(vcat(D, E), vcat(E', Z))
-
-b = sprand(120, .7)
-
-L, alpha, beta, Q, R = LanczosQR(A, b, 120)
-
-H = Q*R
-println(size(R))
-
-e1 = Matrix(1.0 * I(121))[:, 1]
-
-x = L * (H \ (e1 * norm(b)))
-
-println(norm(A * x - b))
-=#

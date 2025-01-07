@@ -10,4 +10,4 @@ Pkg.add("Plots")
 Pkg.add("LightGraphs")
 Pkg.add("IterativeSolvers")
 Pkg.add("TickTock")
-
+Pkg.add("ArgParse")

@@ -30,18 +30,6 @@ function gen_A_from_data(lin_costs, E_bar)
 
 end
 
-function gen_test_prec_from_data(lin_costs, E_bar)
-    D = Diagonal(generate_quadratic_costs(lin_costs))
-    E = E_bar[1 : size(E_bar)[1] - 1, :]
-    Eᵀ = transpose(E) * 1.0
-    Dinv = Matrix(inv(D))
-    S = E * Dinv * Eᵀ
-    Z = zeros(size(D, 1), size(S, 2))
-    P = [D Z ;
-         E S]
-
-    return SparseMatrixCSC(P)
-end
 
 function gen_A_all_ones(E_bar)
     E = E_bar[1 : size(E_bar)[1] - 1, :]
@@ -53,20 +41,6 @@ function gen_A_all_ones(E_bar)
         E Z]
 
     return Deye, E, SparseMatrixCSC(A)
-end
-
-
-function gen_test_prec_all_ones(E_bar)
-    E = E_bar[1 : size(E_bar)[1] - 1, :]
-    Deye = I(size(E, 2)) * 1.0
-    Eᵀ = transpose(E) * 1.0
-    S = E * Deye * Eᵀ
-    Z = zeros(size(Deye, 1), size(S, 2))
-
-    P = [Deye Z ;
-         E S]
-
-    return SparseMatrixCSC(P)
 end
 
 

@@ -1,20 +1,12 @@
 using LinearAlgebra
 using Random
 using SparseArrays
-using ExponentialUtilities  # to compare with builtin arnoldi
 using TickTock  # to test complexity of LanczosQR
 
 include("QR.jl")
-include("lanczos_qr.jl")
 
 # Random.seed!(42)
 
-"""
-Select what form to use for preconditioned matrix.
-
-"""
-
-const PRECOND = "PAPT"
 
 # This threshold is used to eliminate near-zero off-diag elements from the matrix S
 # currently not used
@@ -38,39 +30,9 @@ function mult_by_PT(v, sqrtD, Uinv)
     return mult_by_P(v, sqrtD, Uinv')
 end
 
-
-# JUST FOR TESTING
-function LanczosQRPrecond_using_lanczosqr(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
-    sizeA = size(D)[1] + size(E)[1]
-    sizeD = size(D)[1]
-    heightE = size(E)[1]
-    S = E * inv(D) * E'
-    U = (cholesky(Matrix(S)).U)       # U'U = S
-    Uinv = SparseMatrixCSC(inv(U))
-    sqrtD = inv(sqrt(D))
-
-    # set off-diagonal elements under some threshold to zero
-    if THRESHOLD_ZERO > 0
-        threshold = THRESHOLD_ZERO
-        mask = .!I(heightE) .& (abs.(S) .< threshold)
-        S[mask] .= 0
-    end
-
-    # construct matrix and vector
-    P = [sqrtD zeros(sizeD, heightE) ; zeros(heightE, sizeD) Uinv']
-    A = [D E' ;
-         E zeros(size(E, 1), size(E, 1))]
-
-    PAPT = P * A * P'
-
-    Py = P * y
-    return LanczosQR(PAPT, Py, n)
-end
-
-
 function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
     """
-    Builds QR factorization of H while performing Lanczos
+    Builds QR factorization of H while performing Lanczos (precond version)
     """     
     
     alpha = zeros(1,n)      # diagonal of H
@@ -104,13 +66,13 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
     # base case + n * (inductive case)
     # let A be m*m
     for j in 1:n
-        if j % 500 == 0
-            if j > 500
-                tock()
-            end
-            println(j, "-th iteration")
-            tick()
-        end
+#         if j % 500 == 0
+#             if j > 500
+#                 tock()
+#             end
+#             println(j, "-th iteration")
+#             tick()
+#         end
 
 
         if j == 1
@@ -173,7 +135,7 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
 
 
             if beta[j] < 1e-13
-                println("Breakdown");
+                println(" * Breakdown");
                 return (L[:, 1:j], alpha, beta, Q[1:j+1, 1:j+1], R[1:j+1, 1:j])
             end
 
@@ -185,55 +147,3 @@ function LanczosQRPrecond(D::Diagonal, E :: SparseMatrixCSC, y::Vector, n::Int)
     return (L, alpha, beta, Q, R)
 
 end
-
-#=
-dim1 = 8000
-dim2 = 200
-dim = dim1 + dim2
-
-D = Diagonal(1.0 * I(dim1))
-E = Matrix(sprand(dim2, dim1, .002))
-Z = SparseMatrixCSC(zeros(dim2, dim2))
-
-A = hcat(vcat(D, E), vcat(E', Z))
-
-b = Vector(sprand(dim, .7))
-
-L, alpha, beta, Q, R = LanczosQRPrecond(D, E, b, dim)
-
-
-H = Q*R
-# println(size(R))
-
-sizeA = size(D)[1] + size(E)[1]
-sizeD = size(D)[1]
-S = E * inv(D) * E'
-# set off-diagonal elements under some threshold to zero
-threshold = THRESHOLD_ZERO
-mask = .!I(dim2) .& (abs.(S) .< threshold)
-S[mask] .= 0
-
-
-e1 = Matrix(1.0 * I(dim + 1))[:, 1]
-
-if (PRECOND == "PAPT")
-    bu = b[1 : sizeD]
-    bb = b[sizeD + 1 : sizeA]
-    Pb = [D * bu ; E * bu + S * bb]
-    invPTx = L * (H \ (e1 * norm(Pb)))
-    xu = invPTx[1 : sizeD]
-    xb = invPTx[sizeD + 1 : sizeA]
-    x = [D * xu + E' * xb ; S' * xb]
-else
-    bu = b[1 : sizeD]
-    bb = b[sizeD + 1 : sizeA]
-    PTb = [D * bu + E' * bb ; S' * bb]
-    invPx  = L * (H \ (e1 * norm(PTb)))
-    xu = invPx[1 : sizeD]
-    xb = invPx[sizeD + 1 : sizeA]
-    x = [D * xu; E * xu + S * xb]
-end
-
-println(norm(A * x - b))
-
-=#

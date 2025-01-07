@@ -1,5 +1,4 @@
 using LinearAlgebra
-using IterativeSolvers
 using SparseArrays
 using Random
 # Utilities
@@ -88,19 +87,79 @@ function plot_residual_precond(D, E, A, y, iterations, step, title)
 
     tic = 10.0 .^ collect(range(-12,12,step=2))
 
-    p = plot(iters, [residuals residuals_precond], yaxis=:log, yticks=tic, label = ["no precond" "precond"], title ="All ones")
+    p = plot(iters, [residuals residuals_precond], yaxis=:log, yticks=tic, label = ["no precond" "precond"], title = title)
 
 end
 
+"""
+GENERATES SCATTER PLOTS COMPARING ALL METHODS
+"""
+function plot_residual_restarted(D, E, A, y, iterations, step, title)
+    iters = range(1, iterations, step = step)
+    times = zeros(length(iters))
+    times_precond = zeros(length(iters))
+    times_restarted = zeros(length(iters))
+    times_restarted_precond = zeros(length(iters))
+    residuals = zeros(length(iters))
+    residuals_precond = zeros(length(iters))
+    residuals_restarted = zeros(length(iters))
+    residuals_restarted_precond = zeros(length(iters))
 
-flows, E_bar, edge_data = load_mcfp_data("dataset/net10_8_1.dmx_out.npz")
+    for i in range(1, length(iters))
+        if i % 20 == 0
+            println(iters[i], "-th iteration")
+        end
 
-D, E, A = gen_A_all_ones(E_bar)
+        t = @elapsed begin
+            x = GMRES_IncrementalQR(A, y, iters[i])
+        end
+        residuals[i] = norm(A * x - y)
+        times[i] = t
+    end
 
-y = (gen_y_from_data(flows, edge_data[:, 5]))
+     for i in range(1, length(iters))
+        if i % 20 == 0
+            println(iters[i], "-th iteration")
+        end
 
-iterations = size(A)[1]
+        t = @elapsed begin
+            x = GMRES_IncrementalQR_precond(D, SparseMatrixCSC(E), y, iters[i])
+        end
+        residuals_precond[i] = norm(A * x - y)
+        times_precond[i] = t
+    end
 
-plot_residual_precond(D, E, A, y, iterations, 1000, "banana")
+    for i in range(1, length(iters))
+        if i % 20 == 0
+            println(iters[i], "-th iteration")
+        end
 
-readline()
+        t = @elapsed begin
+            x = GMRES_Restarted(GMRES_IncrementalQR, A, y, (A,), iters[i], 2000, 10E-10)
+        end
+        residuals_restarted[i] = norm(A * x - y)
+        times_restarted[i] = t
+    end
+
+    for i in range(1, length(iters))
+        if i % 20 == 0
+            println(iters[i], "-th iteration")
+        end
+
+        t = @elapsed begin
+            x = GMRES_Restarted(GMRES_IncrementalQR_precond, A, y, (D, SparseMatrixCSC(E)), iters[i], 300, 10E-10)
+        end
+        residuals_restarted_precond[i] = norm(A * x - y)
+        times_restarted_precond[i] = t
+    end
+
+    tic = 10.0 .^ collect(range(-12,12,step=2))
+
+#     argmax = findmax(times)[2]
+#     deleteat!(times, argmax)
+#     deleteat!(residuals, argmax)
+
+    p = scatter([times, times_precond, times_restarted, times_restarted_precond],
+                [residuals, residuals_precond, residuals_restarted, residuals_restarted_precond], yaxis=:log, yticks=tic, label = ["GMRES" "Precond" "Restarted" "Restarted Precond"], title = title)
+
+end

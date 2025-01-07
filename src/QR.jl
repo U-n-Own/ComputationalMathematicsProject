@@ -65,14 +65,3 @@ function LeastSquares_QR(Q :: Matrix, R :: Matrix, b :: Vector)
     
     return x
 end
-
-#v = [2.1297 ; 0.6333]
-#= v = rand(9)
-A = rand(9, 9)
-Q, R = QR_fact(A)
-display(Q)
-display(R)
-
-x = LeastSquares_QR(SparseMatrixCSC(Q), SparseMatrixCSC(R), SparseVector(v))
-
-println(norm(A*x - v)) =#
