@@ -2,34 +2,16 @@ using LinearAlgebra
 using SparseArrays
 using Random
 # Utilities
-using NPZ
+# using NPZ
 using Plots
 using LightGraphs
+using PyCall
 
 include("GMRES.jl")
 
 include("generate_matrix.jl")
 
 Plots.default(show = true)
-
-function load_mcfp_data(filename::String)
-    """
-    Load the MCFP data from the npz file
-
-    Returns:
-    D: Diagonal matrix
-    E: Node arc incidence matrix
-    edge_data: Full edge informations with a tuple of (source, target, least flow, max flow, cost)
-    """
-
-    data = NPZ.npzread(filename)
-
-    flows = data["node_flows"]
-    E = data["node_arc_matrix"]
-    edge_data = data["full_edges"]
-
-    return flows, E, edge_data
-end
 
 """
 PLOTS RESIDUAL OF GMRES
@@ -94,7 +76,7 @@ end
 """
 GENERATES SCATTER PLOTS COMPARING ALL METHODS
 """
-function plot_residual_restarted(D, E, A, y, iterations, step, title)
+function plot_residual_restarted(D, E, A, y, iterations, step, tol, restart, restart_precond)
     iters = range(1, iterations, step = step)
     times = zeros(length(iters))
     times_precond = zeros(length(iters))
@@ -105,6 +87,7 @@ function plot_residual_restarted(D, E, A, y, iterations, step, title)
     residuals_restarted = zeros(length(iters))
     residuals_restarted_precond = zeros(length(iters))
 
+    println("Testing GMRES...")
     for i in range(1, length(iters))
         if i % 20 == 0
             println(iters[i], "-th iteration")
@@ -117,6 +100,7 @@ function plot_residual_restarted(D, E, A, y, iterations, step, title)
         times[i] = t
     end
 
+    println("Testing precond GMRES...")
      for i in range(1, length(iters))
         if i % 20 == 0
             println(iters[i], "-th iteration")
@@ -129,25 +113,27 @@ function plot_residual_restarted(D, E, A, y, iterations, step, title)
         times_precond[i] = t
     end
 
+    println("Testing restarted GMRES...")
     for i in range(1, length(iters))
         if i % 20 == 0
             println(iters[i], "-th iteration")
         end
 
         t = @elapsed begin
-            x = GMRES_Restarted(GMRES_IncrementalQR, A, y, (A,), iters[i], 2000, 10E-10)
+            x = GMRES_Restarted(GMRES_IncrementalQR, A, y, (A,), iters[i], restart, tol)
         end
         residuals_restarted[i] = norm(A * x - y)
         times_restarted[i] = t
     end
 
+    println("Testing restarted precond GMRES...")
     for i in range(1, length(iters))
         if i % 20 == 0
             println(iters[i], "-th iteration")
         end
 
         t = @elapsed begin
-            x = GMRES_Restarted(GMRES_IncrementalQR_precond, A, y, (D, SparseMatrixCSC(E)), iters[i], 300, 10E-10)
+            x = GMRES_Restarted(GMRES_IncrementalQR_precond, A, y, (D, SparseMatrixCSC(E)), iters[i], restart_precond, tol)
         end
         residuals_restarted_precond[i] = norm(A * x - y)
         times_restarted_precond[i] = t
@@ -160,6 +146,6 @@ function plot_residual_restarted(D, E, A, y, iterations, step, title)
 #     deleteat!(residuals, argmax)
 
     p = scatter([times, times_precond, times_restarted, times_restarted_precond],
-                [residuals, residuals_precond, residuals_restarted, residuals_restarted_precond], yaxis=:log, yticks=tic, label = ["GMRES" "Precond" "Restarted" "Restarted Precond"], title = title)
+                [residuals, residuals_precond, residuals_restarted, residuals_restarted_precond], yaxis=:log, yticks=tic, label = ["GMRES" "Precond" "Restarted" "Restarted Precond"])
 
 end

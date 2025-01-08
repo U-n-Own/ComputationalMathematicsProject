@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2024.8.13)  7 JAN 2025 18:39
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2024.8.13)  8 JAN 2025 00:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -939,27 +939,34 @@ File: ./plots/all generated.png Graphic file (type png)
 Package pdftex.def Info: ./plots/all generated.png  used on input line 878.
 (pdftex.def)             Requested size: 225.2375pt x 148.30142pt.
  [17 <./plots/all generated.png>]
-<plots/example.png, id=507, 443.40656pt x 282.30469pt>
+<plots/example.png, id=511, 443.40656pt x 282.30469pt>
 File: plots/example.png Graphic file (type png)
 <use plots/example.png>
-Package pdftex.def Info: plots/example.png  used on input line 951.
+Package pdftex.def Info: plots/example.png  used on input line 953.
 (pdftex.def)             Requested size: 221.70273pt x 141.152pt.
  [18 <./plots/example.png>] [19] (./notes.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
-Package rerunfilecheck Info: File `notes.out' has not changed.
-(rerunfilecheck)             Checksum: B5B1A1D053ABDB77A586707BB8F10DF7;6986.
+
+
+Package rerunfilecheck Warning: File `notes.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `notes.out':
+(rerunfilecheck)             Before: B5B1A1D053ABDB77A586707BB8F10DF7;6986
+(rerunfilecheck)             After:  DF231507BFAA5ABC917FB7F6FCA46E1E;7392.
 Package logreq Info: Writing requests to 'notes.run.xml'.
 \openout1 = `notes.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 22328 strings out of 474222
- 379057 string characters out of 5748733
- 2309975 words of memory out of 5000000
- 44067 multiletter control sequences out of 15000+600000
+ 22329 strings out of 474222
+ 379115 string characters out of 5748733
+ 2364975 words of memory out of 5000000
+ 44063 multiletter control sequences out of 15000+600000
  573325 words of font info for 95 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  79i,14n,93p,678b,1563s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -993,10 +1000,10 @@ xmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb></usr/share/texmf/fonts/
 type1/public/cm-super/sfit0900.pfb></usr/share/texmf/fonts/type1/public/cm-supe
 r/sfrm0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr
 /share/texmf/fonts/type1/public/cm-super/sftt0900.pfb>
-Output written on notes.pdf (19 pages, 1065026 bytes).
+Output written on notes.pdf (19 pages, 1066214 bytes).
 PDF statistics:
- 735 PDF objects out of 1000 (max. 8388607)
- 617 compressed objects within 7 object streams
- 250 named destinations out of 1000 (max. 500000)
+ 742 PDF objects out of 1000 (max. 8388607)
+ 624 compressed objects within 7 object streams
+ 255 named destinations out of 1000 (max. 500000)
  339 words of extra memory for PDF output out of 10000 (max. 10000000)
 

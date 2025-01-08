@@ -41,4 +41,7 @@
 \contentsline {subsubsection}{\numberline {6.3.3}Matrix with generated quadratic costs}{17}{subsubsection.6.3.3}%
 \contentsline {section}{\numberline {7}Command Line Tool}{17}{section.7}%
 \contentsline {subsection}{\numberline {7.1}Examples}{18}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Data generation}{18}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Notes on the tool}{19}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Dependencies}{19}{subsection.7.4}%
 \contentsline {section}{\numberline {8}Conclusions}{19}{section.8}%

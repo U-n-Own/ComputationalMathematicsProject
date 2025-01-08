@@ -169,7 +169,7 @@ b\\c
  by updating the QR factorization of $H_n$
  at each step: given the QR factorization of $H_{n-1}$
  computed at the previous step, apply one more orthogonal transformation to compute that of $H_n$.
-\item (A2)is the same GMRES, but using the following preconditioner
+\item (A2) is the same GMRES, but using the following preconditioner
 $$P = \begin{bmatrix}
      D^{-\frac12} & 0\\
      0 & R^{-T}
@@ -889,7 +889,8 @@ We wrote a command line tool to facilitate the testing of our algorithms. The fo
 
 \lstset{style=mystyle_plain}
 \begin{lstlisting}
- usage: main.jl [--iterations ITERATIONS] [--restart RESTART]
+usage: main.jl [--iterations ITERATIONS] [--restart RESTART]
+               [--restart_precond RESTART_PRECOND]
                [--diagonal DIAGONAL] [--tol TOL] [--step STEP]
                [--precond] [--restarted] [-h] mode data
 
@@ -899,10 +900,13 @@ positional arguments:
 
 optional arguments:
   --iterations ITERATIONS
-                        Number of iterations. If 0, uses size of
-                        matrix. (type: Int64, default: 0)
+                        Number of iterations. (type: Int64, default:
+                        1000)
   --restart RESTART     Restart parameter of restarted algorithm.
                         (type: Int64, default: 300)
+  --restart_precond RESTART_PRECOND
+                        Restart parameter of restarted preconditioned
+                        algorithm. (type: Int64, default: 300)
   --diagonal DIAGONAL   Can be "ones", "uniform" or "quadratic"
                         (default: "quadratic")
   --tol TOL             Tolerance parameter of restarted algorithm.
@@ -912,8 +916,8 @@ optional arguments:
   --precond             Preconditioned? [used in compute mode].
   --restarted           Restarted? [used in compute mode].
   -h, --help            show this help message and exit
-
 \end{lstlisting}
+
 
 \subsection{Examples}
 
@@ -939,9 +943,7 @@ On the other hand, \textbf{bench mode} can be used to plot the comparison betwee
  \begin{lstlisting}
 $ julia main.jl bench ./dataset/net10_8_1.dmx_out.npz --diagonal ones  --iterations 200
 Performing 200 iterations with step = 50
- * Breakdown
- * [...]
- * Did not converge within 151 iterations. Final residual norm: 5.1003964751279926e-9
+[...]
 press enter to terminate program.
 
  \end{lstlisting}
@@ -954,6 +956,13 @@ The program produces the scatter plot in figure \ref{fig:example}.
 \label{fig:example}
 \end{figure}
 
+\subsection{Data generation} We provide a parser that transforms the \texttt{dmx} files from the netgen dataset to \texttt{npz} compressed archives. In the dataset directory, we include some compressed data representing graphs of increasing size and density.
+
+\subsection{Notes on the tool}
+In order to have the data occupy less space, we used the \texttt{npz} data format to store them. However, this is not directly compatible with the Julia language, therefore to load the sparse matrices from disk we first run them through a conversion function we wrote. For matrices that are sparse enough, this does not impact the initialization time significantly, but with very dense matrices the initialization time can easily reach 30 seconds.
+
+\subsection{Dependencies}
+The dependencies can be installed by running: \texttt{julia requirements.jl}, which will install the packages used in our project.
 
 
 \section{Conclusions}

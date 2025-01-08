@@ -59,18 +59,18 @@ def parse_to_matrix_format(filename):
         node_flows[f[0]-1] = f[1]
     
     # Initialize an empty matrix
-    node_arc_matrix = np.zeros((problem["n_nodes"], len(edges)))
+    node_arc_matrix = sp.lil_matrix((problem["n_nodes"], len(edges)), dtype=np.float64)
     
     # Populate the node-arc incident matrix
     for idx, (src, dst, cost) in enumerate(edges):
-        node_arc_matrix[src-1][idx] = -1  # outgoing edge
-        node_arc_matrix[dst-1][idx] = 1   # incoming edge
+        node_arc_matrix[src-1, idx] = -1  # outgoing edge
+        node_arc_matrix[dst-1, idx] = 1   # incoming edge
          
     # DO NOT SAVE AS OBJECTS node_arc_matrix_sparse 
     
     # Save the two matrixes in a single file, the file will be opened in julia
     np.savez_compressed(f'{filename}_out.npz', node_flows=node_flows,
-                        node_arc_matrix=node_arc_matrix,
+                        node_arc_matrix=node_arc_matrix.tocsc(),
                         full_edges=full_edges)
     
     pass 
@@ -79,5 +79,5 @@ if __name__ == "__main__":
     filename = sys.argv[1]
     #TODO: Parse a list of file names
     parse_to_matrix_format(filename)
-
+    print("done")
     
