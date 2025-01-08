@@ -39,9 +39,13 @@
 \contentsline {subsubsection}{\numberline {6.3.1}Matrix with $D = I$}{16}{subsubsection.6.3.1}%
 \contentsline {subsubsection}{\numberline {6.3.2}Matrix with diagonal in [0,1]}{16}{subsubsection.6.3.2}%
 \contentsline {subsubsection}{\numberline {6.3.3}Matrix with generated quadratic costs}{17}{subsubsection.6.3.3}%
-\contentsline {section}{\numberline {7}Command Line Tool}{17}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Examples}{18}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}Data generation}{18}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}Notes on the tool}{19}{subsection.7.3}%
-\contentsline {subsection}{\numberline {7.4}Dependencies}{19}{subsection.7.4}%
-\contentsline {section}{\numberline {8}Conclusions}{19}{section.8}%
+\contentsline {section}{\numberline {7}Command Line Tool}{18}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Data generation}{18}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Conversion function}{18}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Examples}{19}{subsection.7.3}%
+\contentsline {paragraph}{Modes}{19}{section*.63}%
+\contentsline {subsection}{\numberline {7.4}Notes on iterations and memory usage}{20}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}Notes on the language}{20}{subsection.7.5}%
+\contentsline {subsubsection}{\numberline {7.5.1}JIT and TTFX}{20}{subsubsection.7.5.1}%
+\contentsline {subsection}{\numberline {7.6}Dependencies}{20}{subsection.7.6}%
+\contentsline {section}{\numberline {8}Conclusions}{20}{section.8}%

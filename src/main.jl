@@ -1,12 +1,12 @@
 using ArgParse
 using LinearAlgebra
-using SparseArrays
+@everywhere using SparseArrays
 using Random
 # Utilities
 using NPZ
 using Plots
 using LightGraphs
-using JLD
+import Base.Threads.@spawn
 
 include("GMRES.jl")
 include("generate_matrix.jl")
@@ -15,6 +15,52 @@ include("bench.jl")
 """
 Converts numpy's CSC format to Julia's
 """
+
+@everywhere function converter_worker(py_csc, nrows, n, t_index, n_splits)
+    split_size = floor(Int, n / n_splits)
+
+    index_begin = split_size * (t_index - 1) + 1
+    index_end   = (t_index == n_splits) ? n : (split_size * t_index)
+    interval_size = index_end - index_begin
+    res = spzeros(nrows, interval_size + 1)
+
+    for j in index_begin:index_end
+        nz = py_csc.getcol(j-1).nonzero()[1]
+        res[nz[1] + 1, j - index_begin + 1] = py_csc[nz[1] + 1, j]
+        res[nz[2] + 1, j - index_begin + 1] = py_csc[nz[2] + 1, j]
+    end
+
+    return res
+end
+
+function pycsc_to_csc_mp(py_csc, num_workers)
+    shape = py_csc.shape
+
+    println("converting data format...")
+
+    te = @elapsed begin
+    println("num edges: ", shape[2])
+
+    workers = []
+
+    for i in 1:num_workers
+        t = @spawnat :any converter_worker(py_csc, shape[1], shape[2], i, num_workers)
+        push!(workers, t)
+    end
+
+    res = spzeros(shape[1], 0)
+
+    for t in workers
+        r = fetch(t)
+        res = hcat(res, r)
+    end
+    end
+    println("converted in ", te, " seconds.\n")
+
+    return res
+end
+
+
 function pycsc_to_csc(py_csc)
     size = py_csc.shape
     res = spzeros(size[1], size[2])
@@ -32,7 +78,7 @@ function pycsc_to_csc(py_csc)
     return res
 end
 
-function load_mcfp_data(filename::String)
+function load_mcfp_data(filename::String, parsed_args)
     """
     Load the MCFP data from the npz file
 
@@ -47,8 +93,11 @@ function load_mcfp_data(filename::String)
 
     flows = data.get("node_flows")
 
-    E = pycsc_to_csc(data.get("node_arc_matrix")[])
-
+    if parsed_args["nworkers"] == 1
+        E = pycsc_to_csc(data.get("node_arc_matrix")[])
+    else
+        E = pycsc_to_csc_mp(data.get("node_arc_matrix")[], parsed_args["nworkers"])
+    end
     edge_data = data.get("full_edges")
 
     return flows, E, edge_data
@@ -88,6 +137,10 @@ function parse_commandline()
         "--restarted"
             help = "Restarted? [used in compute mode]."
             action = :store_true
+        "--nworkers"
+            help = "Number of workers for the conversion function. Should be used in tandem with \"julia -p nworkers\""
+            arg_type = Int
+            default = 1
         "mode"
             help = "Program mode. Can be \"compute\" or \"bench\"."
             required = true
@@ -114,7 +167,7 @@ end
 parsed_args = parse_commandline()
 
 
-flows, E_bar, edge_data = load_mcfp_data(parsed_args["data"])
+flows, E_bar, edge_data = load_mcfp_data(parsed_args["data"], parsed_args)
 
 y = (gen_y_from_data(flows, edge_data[:, 5]))
 

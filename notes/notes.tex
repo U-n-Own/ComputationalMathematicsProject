@@ -882,17 +882,19 @@ With this ill-conditioned matrix, GMRES and Restarted GMRES do not reach converg
  \label{fig:restarted_generated}
 \end{figure}
 
+\newpage
+
 \section{Command Line Tool}
 
-We wrote a command line tool to facilitate the testing of our algorithms. The following is its usage, which can be obtained by writing \texttt{julia main.jl --help}
-
+We wrote a command line tool to facilitate the testing of our algorithms. The following is its usage, which can be obtained by writing \texttt{julia -p 1 main.jl --help}
 
 \lstset{style=mystyle_plain}
 \begin{lstlisting}
 usage: main.jl [--iterations ITERATIONS] [--restart RESTART]
                [--restart_precond RESTART_PRECOND]
                [--diagonal DIAGONAL] [--tol TOL] [--step STEP]
-               [--precond] [--restarted] [-h] mode data
+               [--precond] [--restarted] [--nworkers NWORKERS] [-h]
+               mode data
 
 positional arguments:
   mode                  Program mode. Can be "compute" or "bench".
@@ -915,37 +917,75 @@ optional arguments:
                         uses iterations/4 (type: Int64, default: 0)
   --precond             Preconditioned? [used in compute mode].
   --restarted           Restarted? [used in compute mode].
+  --nworkers NWORKERS   Number of workers for the conversion function.
+                        Should be used in tandem with "julia -p
+                        nworkers" (type: Int64, default: 1)
   -h, --help            show this help message and exit
 \end{lstlisting}
+
+\subsection{Data generation} We provide a parser (\texttt{parser\_matrix.py}) that transforms the \texttt{dmx} files from the netgen dataset to \texttt{npz} compressed archives. In the dataset directory, we include some compressed data representing graphs of increasing size and density.
+
+\subsection{Conversion function}
+In order to have the data occupy less space, we used the \texttt{npz} data format to store them. However, this is not directly compatible with the Julia sparse matrix format, therefore to load the incidence matrices from disk we first run them through a conversion function we wrote. \medskip
+
+\noindent We provide two versions of the conversion function: a serial one and a parallel one.
+
+\begin{itemize}
+ \item For incidence matrices that are small enough, the serial converter completes the conversion faster than the parallel one. The conversion times are usually around 1 or 2 seconds for this kind of matrices.
+ \item For larger matrices, such as the one obtained from: \texttt{net12\_64\_1.dmx\_out.npz}, the serial algorithm is way too slow. In these cases, it is necessary to use the parallel one.
+
+\end{itemize}
 
 
 \subsection{Examples}
 
-The command line tool has two ``modes''. \textbf{Compute mode} can be used to perform the algorithm on a graph from the dataset. In the following example:
+In order to simplify the usage of the tool, we provide a \textbf{makefile}, with two targets:
 
 \begin{itemize}
- \item We specify the mode;
- \item We specify the data;
- \item We set the diagonal type through a command line option;
- \item We set the number of iteration we want to perform in the same fashion.
-\end{itemize}
-
+ \item \textbf{run}, which performs the serial conversion:
 
  \begin{lstlisting}
-$ julia main.jl compute ./dataset/net10_8_1.dmx_out.npz --diagonal ones  --iterations 200
+  make run ARGS="compute ./dataset/net10_8_1.dmx_out.npz --precond --iterations 200"
+ \end{lstlisting}
+
+
+ \item \textbf{run\_mp}, which stands for ``multi-process'', and performs the parallel conversion:
+  \begin{lstlisting}
+  make run_mp ARGS="compute ./dataset/net12_64_1.dmx_out.npz --precond --iterations 200" NWORKERS="10"
+ \end{lstlisting}
+\end{itemize}
+
+\paragraph{Modes} The command line tool has two ``modes''. \textbf{Compute mode} can be used to perform the algorithm on a graph from the dataset.
+
+ \begin{lstlisting}
+$ make run ARGS="compute ./dataset/net10_8_1.dmx_out.npz --precond --iterations 200"
+julia -p 1 main.jl compute ./dataset/net10_8_1.dmx_out.npz --precond --iterations 200
+converting data format...
+converted in 1.581830902 seconds.
+
 Compute mode
 ============
 Performing 200 iterations:
-residual: 1.8868471430781007e-10 computed in 0.108904859s
-
+residual: 1.1924300300246332e-7 computed in 0.849061762s
  \end{lstlisting}
 On the other hand, \textbf{bench mode} can be used to plot the comparison between the methods. In the following example, since the step is not specified through a command line option, it defaults to $\frac 14$ times the number of iterations.
  \begin{lstlisting}
-$ julia main.jl bench ./dataset/net10_8_1.dmx_out.npz --diagonal ones  --iterations 200
-Performing 200 iterations with step = 50
-[...]
-press enter to terminate program.
+$ make run ARGS="bench ./dataset/net10_8_1.dmx_out.npz --diagonal ones --iterations 200"
+julia -p 1 main.jl bench ./dataset/net10_8_1.dmx_out.npz --diagonal ones --iterations 200
+converting data format...
+converted in 1.215956481 seconds.
 
+Bench mode
+==========
+Performing 200 iterations with step = 50
+Testing GMRES...
+Testing precond GMRES...
+ * [...]
+Testing restarted GMRES...
+ * [...]
+Testing restarted precond GMRES...
+ * [...]
+press enter to terminate program.
  \end{lstlisting}
 The program produces the scatter plot in figure \ref{fig:example}.
 \begin{figure}
@@ -956,19 +996,24 @@ The program produces the scatter plot in figure \ref{fig:example}.
 \label{fig:example}
 \end{figure}
 
-\subsection{Data generation} We provide a parser that transforms the \texttt{dmx} files from the netgen dataset to \texttt{npz} compressed archives. In the dataset directory, we include some compressed data representing graphs of increasing size and density.
+\subsection{Notes on iterations and memory usage}
 
-\subsection{Notes on the tool}
-In order to have the data occupy less space, we used the \texttt{npz} data format to store them. However, this is not directly compatible with the Julia language, therefore to load the sparse matrices from disk we first run them through a conversion function we wrote. For matrices that are sparse enough, this does not impact the initialization time significantly, but with very dense matrices the initialization time can easily reach 30 seconds.
+Since in our algorithm it is necessary to store the $n$-dimensional basis of the Krylov space explicitly in memory, where $n$ is the number of iterations, a high number of iterations for a very large input matrix will result in high memory usage.
 
-\subsection{Dependencies}
-The dependencies can be installed by running: \texttt{julia requirements.jl}, which will install the packages used in our project.
+\subsection{Notes on the language}
 
+\subsubsection{JIT and TTFX}
+Julia is a dynamic programming language commonly used in numerical analysis. Its most important feature is \emph{just-in-time} (JIT) compilation. In our code, in order to get the timings correct, we had to make sure that each portion of code is compiled before it is timed. We did this by calling it with dummy values before performing the actual timing.\smallskip
+
+\noindent One drawback of JIT compilation is the so-called ``time to first execution'' (TTFX). Each time we run a portion of a Julia script for the first time, there is a slight delay due to the fact that the code is being compiled.
+
+\subsection{Dependencies} In Julia, packages are installed from whithin the language itself. The dependencies can be installed by running: \texttt{julia requirements.jl}, which will install the packages used in our project.
 
 \section{Conclusions}
 
 We implemented two algorithms, GMRES and preconditioned GMRES, and a higher-order function that provides the \emph{restarted} version of any GMRES implementation. The algorithm without preconditioning is not able to provide satisfying results with realistic, ill-conditioned systems. The preconditioned algorithm is, instead, adequate for the purpose. However, for the right choice of the \texttt{restart} parameter, the \emph{restarted preconditioned} algorithm is able to converge quickly to results much more precise than any of the other proposed algorithms, even in the case of ill-conditioned matrices.
 
+\newpage
 
 \printbibliography %Prints bibliography
 

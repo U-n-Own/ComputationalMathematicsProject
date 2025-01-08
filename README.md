@@ -14,12 +14,7 @@ $$
 D & E^T\\
 E & 0
 \end{bmatrix}
-\begin{bmatrix}
-x \\ y
-\end{bmatrix} =
-\begin{bmatrix}
-b \\ c
-\end{bmatrix}
+\begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} b \\ c \end{bmatrix}
 $$
 
 where $D \in \mathbb{R}^{m \times m}$ is a diagonal positive definite matrix (i.e., $D = {diag}(D) > 0$) and $E \in \mathbb{R}^{(n-1) \times m}$ is obtained by removing the last row from the node-arc incidence matrix of a given connected directed graph. These problems arise as the KKT system of the convex quadratic separable Min-Cost Flow Problem; hence, you can look, e.g., [here](https://commalab.di.unipi.it/datasets/mcf) for ways to generate meaningful instances of the problem.
@@ -64,7 +59,8 @@ By running `julia main.jl --help`, you will obtain the following:
 usage: main.jl [--iterations ITERATIONS] [--restart RESTART]
                [--restart_precond RESTART_PRECOND]
                [--diagonal DIAGONAL] [--tol TOL] [--step STEP]
-               [--precond] [--restarted] [-h] mode data
+               [--precond] [--restarted] [--nworkers NWORKERS] [-h]
+               mode data
 
 positional arguments:
   mode                  Program mode. Can be "compute" or "bench".
@@ -87,24 +83,52 @@ optional arguments:
                         uses iterations/4 (type: Int64, default: 0)
   --precond             Preconditioned? [used in compute mode].
   --restarted           Restarted? [used in compute mode].
+  --nworkers NWORKERS   Number of workers for the conversion function.
+                        Should be used in tandem with "julia -p
+                        nworkers" (type: Int64, default: 1)
   -h, --help            show this help message and exit
 ```
 
 #### Examples
 
-The following will compute the residual obtained by running the non-preconditioned, non-restarted algorithm with ones on the diagonal and a limit of 200 iterations.
+The following will compute the residual obtained by running the preconditioned, non-restarted algorithm with simulated quadratic costs on the diagonal and a limit of 200 iterations.
 ```
-$ julia main.jl compute ./dataset/net10_8_1.dmx_out.npz --diagonal ones  --iterations 200
+$ make run ARGS="compute ./dataset/net10_8_1.dmx_out.npz --precond --iterations 200"
+julia -p 1 main.jl compute ./dataset/net10_8_1.dmx_out.npz --precond --iterations 200
+converting data format...
+converted in 1.581830902 seconds.
+
 Compute mode
 ============
 Performing 200 iterations:
-residual: 1.8868471430781007e-10 computed in 0.108904859s
+residual: 1.1924300300246332e-7 computed in 0.849061762s
 ```
 
-The following will show a scatter plot comparing the performance of the different algorithms. Since the step is not defined as a command-line option, it is set by default to a quarter of the number of iterations.
+The following will show a scatter plot comparing the performance of the different algorithms. Since we did not set the step, it is set by default to a quarter of the number of iterations.
 ```
-$ julia main.jl bench ./dataset/net10_8_1.dmx_out.npz --diagonal ones  --iterations 200
+$ make run ARGS="bench ./dataset/net10_8_1.dmx_out.npz --diagonal ones --iterations 200"
+julia -p 1 main.jl bench ./dataset/net10_8_1.dmx_out.npz --diagonal ones --iterations 200
+converting data format...
+converted in 1.215956481 seconds.
+
+Bench mode
+==========
 Performing 200 iterations with step = 50
-[...]
+Testing GMRES...
+Testing precond GMRES...
+ * [...]
+Testing restarted GMRES...
+ * [...]
+Testing restarted precond GMRES...
+ * [...]
 press enter to terminate program.
 ```
+
+### Parallel conversion function
+
+If the conversion takes too long, switch to the parallel conversion function:
+
+```
+  make run_mp ARGS="compute ./dataset/net12_64_1.dmx_out.npz --precond --iterations 200" NWORKERS="5"
+```
+and choose an appropriate number of workers to minimize the conversion time.

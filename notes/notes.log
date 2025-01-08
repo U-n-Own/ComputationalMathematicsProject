@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2024.8.13)  8 JAN 2025 00:59
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2024.8.13)  8 JAN 2025 12:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -860,7 +860,7 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 766.
 
-<./plots/all ones.png, id=438, 1132.23pt x 741.52031pt>
+<./plots/all ones.png, id=468, 1132.23pt x 741.52031pt>
 File: ./plots/all ones.png Graphic file (type png)
 <use ./plots/all ones.png>
 Package pdftex.def Info: ./plots/all ones.png  used on input line 779.
@@ -870,7 +870,7 @@ Overfull \hbox (4.18365pt too wide) in paragraph at lines 779--780
  [] 
  []
 
-<./plots/uniform.png, id=440, 1226.33156pt x 740.0147pt>
+<./plots/uniform.png, id=470, 1226.33156pt x 740.0147pt>
 File: ./plots/uniform.png Graphic file (type png)
 <use ./plots/uniform.png>
 Package pdftex.def Info: ./plots/uniform.png  used on input line 785.
@@ -880,13 +880,13 @@ Overfull \hbox (21.1212pt too wide) in paragraph at lines 785--786
  [] 
  []
 
-<./plots/generated.png, id=441, 1144.275pt x 737.75626pt>
+<./plots/generated.png, id=471, 1144.275pt x 737.75626pt>
 File: ./plots/generated.png Graphic file (type png)
 <use ./plots/generated.png>
 Package pdftex.def Info: ./plots/generated.png  used on input line 791.
 (pdftex.def)             Requested size: 205.9606pt x 132.79039pt.
 [14 <./plots/all ones.png> <./plots/uniform.png> <./plots/generated.png>]
-<./plots/precond all ones.png, id=452, 1135.24126pt x 743.77875pt>
+<./plots/precond all ones.png, id=482, 1135.24126pt x 743.77875pt>
 File: ./plots/precond all ones.png Graphic file (type png)
 <use ./plots/precond all ones.png>
 Package pdftex.def Info: ./plots/precond all ones.png  used on input line 826.
@@ -896,7 +896,7 @@ Overfull \hbox (4.72566pt too wide) in paragraph at lines 826--827
  [] 
  []
 
-<./plots/precond uniform.png, id=453, 1157.82562pt x 740.7675pt>
+<./plots/precond uniform.png, id=483, 1157.82562pt x 740.7675pt>
 File: ./plots/precond uniform.png Graphic file (type png)
 <use ./plots/precond uniform.png>
 Package pdftex.def Info: ./plots/precond uniform.png  used on input line 832.
@@ -906,7 +906,7 @@ Overfull \hbox (8.79066pt too wide) in paragraph at lines 832--833
  [] 
  []
 
-<./plots/precond generated.png, id=454, 1187.18532pt x 743.02594pt>
+<./plots/precond generated.png, id=484, 1187.18532pt x 743.02594pt>
 File: ./plots/precond generated.png Graphic file (type png)
 <use ./plots/precond generated.png>
 Package pdftex.def Info: ./plots/precond generated.png  used on input line 838.
@@ -922,51 +922,44 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 850.
 
-<./plots/all all ones.png, id=465, 1138.2525pt x 746.03719pt>
+<./plots/all all ones.png, id=495, 1138.2525pt x 746.03719pt>
 File: ./plots/all all ones.png Graphic file (type png)
 <use ./plots/all all ones.png>
 Package pdftex.def Info: ./plots/all all ones.png  used on input line 856.
 (pdftex.def)             Requested size: 227.64647pt x 149.20479pt.
-<./plots/all uniform.png, id=466, 1151.05031pt x 743.77875pt>
+<./plots/all uniform.png, id=496, 1151.05031pt x 743.77875pt>
 File: ./plots/all uniform.png Graphic file (type png)
 <use ./plots/all uniform.png>
 Package pdftex.def Info: ./plots/all uniform.png  used on input line 867.
 (pdftex.def)             Requested size: 230.20598pt x 148.75311pt.
 [16 <./plots/all all ones.png> <./plots/all uniform.png>]
-<./plots/all generated.png, id=476, 1126.2075pt x 741.52031pt>
+<./plots/all generated.png, id=506, 1126.2075pt x 741.52031pt>
 File: ./plots/all generated.png Graphic file (type png)
 <use ./plots/all generated.png>
 Package pdftex.def Info: ./plots/all generated.png  used on input line 878.
 (pdftex.def)             Requested size: 225.2375pt x 148.30142pt.
- [17 <./plots/all generated.png>]
-<plots/example.png, id=511, 443.40656pt x 282.30469pt>
+ [17 <./plots/all generated.png>] [18]
+<plots/example.png, id=550, 443.40656pt x 296.60812pt>
 File: plots/example.png Graphic file (type png)
 <use plots/example.png>
-Package pdftex.def Info: plots/example.png  used on input line 953.
-(pdftex.def)             Requested size: 221.70273pt x 141.152pt.
- [18 <./plots/example.png>] [19] (./notes.aux)
+Package pdftex.def Info: plots/example.png  used on input line 993.
+(pdftex.def)             Requested size: 221.70273pt x 148.3037pt.
+ [19] [20 <./plots/example.png>] [21] (./notes.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
-
-
-Package rerunfilecheck Warning: File `notes.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `notes.out':
-(rerunfilecheck)             Before: B5B1A1D053ABDB77A586707BB8F10DF7;6986
-(rerunfilecheck)             After:  DF231507BFAA5ABC917FB7F6FCA46E1E;7392.
+Package rerunfilecheck Info: File `notes.out' has not changed.
+(rerunfilecheck)             Checksum: 98E4DB7B1495A53AC64B8B391A24FA3F;7955.
 Package logreq Info: Writing requests to 'notes.run.xml'.
 \openout1 = `notes.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 22329 strings out of 474222
- 379115 string characters out of 5748733
- 2364975 words of memory out of 5000000
- 44063 multiletter control sequences out of 15000+600000
+ 22384 strings out of 474222
+ 379884 string characters out of 5748733
+ 2444975 words of memory out of 5000000
+ 44088 multiletter control sequences out of 15000+600000
  573325 words of font info for 95 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  79i,14n,93p,678b,1563s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1000,10 +993,10 @@ xmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb></usr/share/texmf/fonts/
 type1/public/cm-super/sfit0900.pfb></usr/share/texmf/fonts/type1/public/cm-supe
 r/sfrm0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr
 /share/texmf/fonts/type1/public/cm-super/sftt0900.pfb>
-Output written on notes.pdf (19 pages, 1066214 bytes).
+Output written on notes.pdf (21 pages, 1074829 bytes).
 PDF statistics:
- 742 PDF objects out of 1000 (max. 8388607)
- 624 compressed objects within 7 object streams
- 255 named destinations out of 1000 (max. 500000)
- 339 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 807 PDF objects out of 1000 (max. 8388607)
+ 687 compressed objects within 7 object streams
+ 285 named destinations out of 1000 (max. 500000)
+ 387 words of extra memory for PDF output out of 10000 (max. 10000000)
 
