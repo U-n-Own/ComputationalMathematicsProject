@@ -25,13 +25,14 @@
 \contentsline {paragraph}{Reasons for using the restarted version}{11}{section*.49}%
 \contentsline {paragraph}{Correctness: restart invariant}{11}{section*.50}%
 \contentsline {paragraph}{Drawbacks of the method}{12}{section*.51}%
+\contentsline {paragraph}{Computational cost of restarted}{12}{section*.52}%
 \contentsline {section}{\numberline {5}Generating instances of the problem}{12}{section.5}%
 \contentsline {subsection}{\numberline {5.1}Min-Cost Flow}{12}{subsection.5.1}%
 \contentsline {subsection}{\numberline {5.2}Problem and constraints in matrix form}{13}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}KKT System}{13}{subsection.5.3}%
 \contentsline {subsection}{\numberline {5.4}Netgen dataset, and generating $D$}{13}{subsection.5.4}%
-\contentsline {paragraph}{Generating $D$}{13}{section*.56}%
-\contentsline {paragraph}{Other ways to construct $D$}{13}{section*.57}%
+\contentsline {paragraph}{Generating $D$}{13}{section*.57}%
+\contentsline {paragraph}{Other ways to construct $D$}{13}{section*.58}%
 \contentsline {section}{\numberline {6}Experimental Results}{14}{section.6}%
 \contentsline {subsection}{\numberline {6.1}Comparison in performance for different $D$}{14}{subsection.6.1}%
 \contentsline {subsection}{\numberline {6.2}Comparison between the precond. and non-precond. systems}{14}{subsection.6.2}%
@@ -43,7 +44,7 @@
 \contentsline {subsection}{\numberline {7.1}Data generation}{18}{subsection.7.1}%
 \contentsline {subsection}{\numberline {7.2}Conversion function}{18}{subsection.7.2}%
 \contentsline {subsection}{\numberline {7.3}Examples}{19}{subsection.7.3}%
-\contentsline {paragraph}{Modes}{19}{section*.63}%
+\contentsline {paragraph}{Modes}{19}{section*.64}%
 \contentsline {subsection}{\numberline {7.4}Notes on iterations and memory usage}{20}{subsection.7.4}%
 \contentsline {subsection}{\numberline {7.5}Notes on the language}{20}{subsection.7.5}%
 \contentsline {subsubsection}{\numberline {7.5.1}JIT and TTFX}{20}{subsubsection.7.5.1}%

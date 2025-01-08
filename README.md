@@ -50,6 +50,7 @@ The source code is written in Julia. The dependencies can be installed by runnin
 julia requirements.jl
 ```
 which will install the packages used in our project.
+To quickly test if your setup is correct, run `make example`.
 
 #### Usage
 
@@ -90,7 +91,6 @@ optional arguments:
 ```
 
 #### Examples
-
 The following will compute the residual obtained by running the preconditioned, non-restarted algorithm with simulated quadratic costs on the diagonal and a limit of 200 iterations.
 ```
 $ make run ARGS="compute ./dataset/net10_8_1.dmx_out.npz --precond --iterations 200"

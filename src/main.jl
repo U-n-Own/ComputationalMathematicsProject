@@ -160,7 +160,8 @@ function getDEA(E_bar, edge_data, parsed_args)
     elseif parsed_args["diagonal"] == "quadratic"
         return gen_A_from_data(edge_data[:, 5], E_bar)
     else
-        @assert false
+        println("diagonal type not recognized")
+        exit(1)
     end
 end
 
