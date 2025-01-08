@@ -113,7 +113,7 @@
 \newtheorem{claim}{Claim}
 \newtheorem{theo}{Theorem}
 
-\title{CMCS Project 27}
+\title{Computational Mathematics for Learning and Data Science Report: Analyzing an iterative approach to solve for Ill-Conditioned Linear Systems}
 \author{Vincenzo Gargano, Lorenzo Pace}
 \begin{document}
 %  \section*{Notation List}
@@ -678,7 +678,20 @@ Indeed, we should ensure that, under some assumptions, the approximations grow i
 
 A well known difficulty with the restarted GMRES algorithm is that it can stagnate when the matrix is not positive definite \cite{saad2003iterative}. Indeed, experimentally, we have noticed that choosing the wrong parameters (\texttt{restart} and tolerance) would yield stagnation. However, as evident from the experimental data, the restarted algorithm often delivered solutions orders of magnitude more fast and precise than the bare implementations.
 
+\paragraph{Computational cost of restarted}
 
+We have to notice that, since we lose some optimality condition on the method by using the restart we have to do a tradeoff
+between how much the Krylov space we work making each \textit{iterate} slower and the number of iteration that will be required to converge, 
+for example by setting the iteration to a very low value we have a very fast \textit{iterate} due to the small Krylov space but we may lose the 
+convergence of the method or need a lot of \textit{iterates} to converge. So coupling this by carefully choosing the restart parameter along a good preconditioner
+we can obtain a very fast and precise solution.
+
+
+\begin{itemize}
+    \item \textbf{Time complexity} Given the Lanczos+QR implementation, 
+    the time complexity of the restarted GMRES is $O(\texttt{nnz(A)} + n_r^2$), where $n_r$ is the number of iterations chosen for restarts.
+    \item \textbf{Space complexity} The space complexity is the same as the GMRES algorithm.
+\end{itemize}
 
 \section{Generating instances of the problem}
 
