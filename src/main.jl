@@ -3,10 +3,10 @@ using LinearAlgebra
 @everywhere using SparseArrays
 using Random
 # Utilities
-using NPZ
 using Plots
 using LightGraphs
 import Base.Threads.@spawn
+using PyCall
 
 include("GMRES.jl")
 include("generate_matrix.jl")

@@ -5,7 +5,6 @@ using Random
 # using NPZ
 using Plots
 using LightGraphs
-using PyCall
 
 include("GMRES.jl")
 
